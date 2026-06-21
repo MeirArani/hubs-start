@@ -1,0 +1,15 @@
+@import 'tailwindcss';
+
+.sign-in-button {
+  display: none;
+  @variant lg {
+    display: flex;
+  }
+}
+
+.mobile-sign-in {
+  display: flex;
+  @variant lg {
+    display: none;
+  }
+}

@@ -1,0 +1,31 @@
+@custom-variant vr-md {
+  @media (min-width: var(--breakpoint-md)) and (min-height: var(--breakpoint-vr)) {
+    body::before {
+      content: 'md';
+    }
+  }
+}
+
+@custom-variant vr-lg {
+  @media (min-width: var(--breakpoint-lg)) and (min-height: var(--breakpoint-vr)) {
+    body::before {
+      content: 'lg';
+    }
+  }
+}
+
+@custom-variant vr-xl {
+  @media (min-width: var(--breakpoint-xl)) and (min-height: var(--breakpoint-vr)) {
+    body::before {
+      content: 'xl';
+    }
+  }
+}
+
+@custom-variant vr-xxl {
+  @media (min-width: var(--breakpoint-xxl)) and (min-height: var(--breakpoint-vr)) {
+    body::before {
+      content: 'xxl';
+    }
+  }
+}

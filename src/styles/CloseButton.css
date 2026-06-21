@@ -1,0 +1,11 @@
+@import 'tailwindcss';
+@import './variants.css';
+
+.lg {
+  @variant vr-lg {
+    svg {
+      height: 20px;
+      width: 20px;
+    }
+  }
+}

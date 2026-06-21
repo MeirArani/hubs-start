@@ -1,0 +1,101 @@
+@import 'tailwindcss';
+@import './variants.css';
+
+.icon-button {
+  display: flex;
+  align-items: center;
+  background: transparent;
+  border-width: 0;
+  border-color: transparent;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-bold);
+  cursor: pointer;
+
+  svg {
+    color: var(--text1-color);
+  }
+
+  & > * {
+    margin-right: 4px;
+
+    &:last-child {
+      margin-right: 0;
+    }
+  }
+
+  &:hover {
+    color: var(--primary-color-hover);
+
+    svg {
+      color: var(--primary-color-hover);
+    }
+  }
+
+  &:active {
+    color: var(--primary-color-pressed);
+
+    svg {
+      color: var(--primary-color-pressed);
+    }
+  }
+
+  &:focus {
+    outline: none;
+  }
+
+  &:disabled {
+    color: var(--disabled-icon-color);
+    cursor: not-allowed;
+
+    svg {
+      color: var(--disabled-icon-color);
+    }
+  }
+
+  /* For file upload buttons */
+  input {
+    opacity: 0;
+    width: 0;
+    overflow: hidden;
+
+    &:focus {
+      outline: none;
+    }
+
+    &::-webkit-file-upload-button,
+    &::file-selector-button {
+      visibility: hidden;
+    }
+  }
+
+  &.compact-sm {
+    @variant vr-lg {
+      flex-direction: column;
+      justify-content: center;
+
+      & > * {
+        margin-right: 0;
+        margin-bottom: 4px;
+
+        &:last-child {
+          margin-bottom: 0;
+        }
+      }
+    }
+  }
+
+  :global(.keyboard-user) &:focus-within {
+    box-shadow: 0 0 0 2px var(--outline-color);
+  }
+}
+
+.lg {
+  @variant vr-lg {
+    font-size: var(--font-size-sm);
+
+    svg {
+      height: 24px;
+      width: 24px;
+    }
+  }
+}

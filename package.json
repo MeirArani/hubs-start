@@ -1,0 +1,77 @@
+{
+  "name": "hubs-start",
+  "private": true,
+  "type": "module",
+  "imports": {
+    "#/*": "./src/*"
+  },
+  "scripts": {
+    "dev": "vite dev --port 3000",
+    "generate-routes": "tsr generate",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "lint": "eslint",
+    "format": "prettier --write . && eslint --fix",
+    "check": "prettier --check ."
+  },
+  "dependencies": {
+    "@fontsource/dejavu-mono": "^5.2.5",
+    "@fontsource/poppins": "^5.2.7",
+    "@fortawesome/fontawesome-svg-core": "^7.2.0",
+    "@fortawesome/free-solid-svg-icons": "^7.2.0",
+    "@fortawesome/react-fontawesome": "^3.3.1",
+    "@react-three/fiber": "^9.6.1",
+    "@tailwindcss/vite": "^4.1.18",
+    "@tanstack/react-devtools": "latest",
+    "@tanstack/react-router": "latest",
+    "@tanstack/react-router-devtools": "latest",
+    "@tanstack/react-router-ssr-query": "latest",
+    "@tanstack/react-start": "latest",
+    "@tanstack/react-store": "latest",
+    "@tanstack/router-plugin": "^1.132.0",
+    "@tanstack/store": "latest",
+    "@types/three": "^0.184.1",
+    "aframe": "^1.7.1",
+    "lucide-react": "^0.545.0",
+    "networked-aframe": "^0.14.3",
+    "nitro": "npm:nitro-nightly@latest",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "react-intl": "^10.1.13",
+    "screenfull": "^6.0.2",
+    "tailwindcss": "^4.1.18",
+    "three": "^0.184.0"
+  },
+  "devDependencies": {
+    "@formatjs/unplugin": "^1.1.19",
+    "@tailwindcss/typography": "^0.5.16",
+    "@tanstack/devtools-event-client": "latest",
+    "@tanstack/devtools-vite": "latest",
+    "@tanstack/eslint-config": "latest",
+    "@tanstack/router-cli": "^1.132.0",
+    "@testing-library/dom": "^10.4.1",
+    "@testing-library/react": "^16.3.0",
+    "@types/aframe": "^1.2.9",
+    "@types/node": "^22.10.2",
+    "@types/react": "^19.2.0",
+    "@types/react-dom": "^19.2.0",
+    "@types/screenfull": "^4.1.0",
+    "@vitejs/plugin-react": "^6.0.1",
+    "eslint": "^9.20.0",
+    "jsdom": "^28.1.0",
+    "prettier": "^3.8.1",
+    "sass-embedded": "^1.100.0",
+    "sass-migrator": "^2.6.0",
+    "typescript": "^7.0.1-rc",
+    "vite": "^8.0.0",
+    "vite-plugin-svgr": "^5.2.0",
+    "vitest": "^4.1.5"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild",
+      "lightningcss"
+    ]
+  }
+}
