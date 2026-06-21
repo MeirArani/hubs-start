@@ -2,7 +2,7 @@ import type { ReactNode } from 'react'
 import '#/styles/sass/modal/Modal.module.scss'
 
 export interface ModalProps {
-  title: ReactNode
+  title?: ReactNode
   titleNode?: ReactNode
   beforeTitle?: ReactNode
   afterTitle?: ReactNode
