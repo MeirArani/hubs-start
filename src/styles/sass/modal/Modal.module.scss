@@ -42,8 +42,8 @@
 }
 
 :local(.sm-fullscreen) {
-  @media (max-width: theme.$breakpoint-lg - 1),
-    (max-height: theme.$breakpoint-vr - 1) {
+  @media (max-width: (theme.$breakpoint-lg - 1)),
+    (max-height: (theme.$breakpoint-vr - 1)) {
     position: fixed;
     top: 0;
     left: 0;

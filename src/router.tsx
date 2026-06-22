@@ -1,5 +1,10 @@
-import { createRouter as createTanStackRouter } from '@tanstack/react-router'
+import {
+  createBrowserHistory,
+  createRouter as createTanStackRouter,
+} from '@tanstack/react-router'
 import { routeTree } from './routeTree.gen'
+
+// export const browserHistory = createBrowserHistory({})
 
 export function getRouter() {
   const router = createTanStackRouter({

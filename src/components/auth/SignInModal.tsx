@@ -6,7 +6,7 @@ import {
   type ReactNode,
   type ChangeEventHandler,
 } from 'react'
-import { FormattedMessage, useIntl } from 'react-intl'
+import { defineMessages, FormattedMessage, useIntl } from 'react-intl'
 import TextInputField from '../input/TextInputField'
 import { CancelButton, ContinueButton, NextButton } from '../input/Button'
 import { Modal, type ModalProps } from '../modal/Modal'
@@ -14,82 +14,69 @@ import { CloseButton } from '../input/CloseButton'
 import { Column } from '../layout/Column'
 import { LegalMessage } from './LegalMessage'
 
-type SignInMessage =
-  | {
-      kind: 'pin'
-      id: 'sign-in-modal.signin-message.pin'
-      defaultMessage: "You'll need to sign in to pin objects."
-    }
-  | {
-      kind: 'unpin'
-      id: 'sign-in-modal.signin-message.unpin'
-      defaultMessage: "You'll need to sign in to un-pin objects."
-    }
-  | {
-      kind: 'changeScene'
-      id: 'sign-in-modal.signin-message.change-scene'
-      defaultMessage: "You'll need to sign in to change the scene."
-    }
-  | {
-      kind: 'roomSettings'
-      id: 'sign-in-modal.signin-message.room-settings'
-      defaultMessage: "You'll need to sign in to change the room's settings."
-    }
-  | {
-      kind: 'closeRoom'
-      id: 'sign-in-modal.signin-message.close-room'
-      defaultMessage: "You'll need to sign in to close the room."
-    }
-  | {
-      kind: 'muteUser'
-      id: 'sign-in-modal.signin-message.mute-user'
-      defaultMessage: "You'll need to sign in to mute other users."
-    }
-  | {
-      kind: 'kickUser'
-      id: 'sign-in-modal.signin-message.kick-user'
-      defaultMessage: "You'll need to sign in to kick other users."
-    }
-  | {
-      kind: 'addOwner'
-      id: 'sign-in-modal.signin-message.add-owner'
-      defaultMessage: "You'll need to sign in to assign moderators."
-    }
-  | {
-      kind: 'removeOwner'
-      id: 'sign-in-modal.signin-message.remove-owner'
-      defaultMessage: "You'll need to sign in to assign moderators."
-    }
-  | {
-      kind: 'createAvatar'
-      id: 'sign-in-modal.signin-message.create-avatar'
-      defaultMessage: "You'll need to sign in to create avatars."
-    }
-  | {
-      kind: 'remixAvatar'
-      id: 'sign-in-modal.signin-message.remix-avatar'
-      defaultMessage: "You'll need to sign in to remix avatars."
-    }
-  | {
-      kind: 'remixScene'
-      id: 'sign-in-modal.signin-message.remix-scene'
-      defaultMessage: "You'll need to sign in to remix scenes."
-    }
-  | {
-      kind: 'favoriteRoom'
-      id: 'sign-in-modal.signin-message.favorite-room'
-      defaultMessage: "You'll need to sign in to add this room to your favorites."
-    }
-  | {
-      kind: 'favoriteRooms'
-      id: 'sign-in-modal.signin-message.favorite-rooms'
-      defaultMessage: "You'll need to sign in to add favorite rooms."
-    }
-  | {
-      kind: 'tweet'
-      id: 'sign-in-modal.signin-message.tweet'
-      defaultMessage: "You'll need to sign in to send tweets."
-    }
+const SignInMessages = defineMessages({
+  pin: {
+    id: 'sign-in-modal.signin-message.pin',
+    defaultMessage: "You'll need to sign in to pin objects.",
+  },
+  unpin: {
+    id: 'sign-in-modal.signin-message.unpin',
+    defaultMessage: "You'll need to sign in to un-pin objects.",
+  },
+  changeScene: {
+    id: 'sign-in-modal.signin-message.change-scene',
+    defaultMessage: "You'll need to sign in to change the scene.",
+  },
+  roomSettings: {
+    id: 'sign-in-modal.signin-message.room-settings',
+    defaultMessage: "You'll need to sign in to change the room's settings.",
+  },
+  closeRoom: {
+    id: 'sign-in-modal.signin-message.close-room',
+    defaultMessage: "You'll need to sign in to close the room.",
+  },
+  muteUser: {
+    id: 'sign-in-modal.signin-message.mute-user',
+    defaultMessage: "You'll need to sign in to mute other users.",
+  },
+  kickUser: {
+    id: 'sign-in-modal.signin-message.kick-user',
+    defaultMessage: "You'll need to sign in to kick other users.",
+  },
+  addOwner: {
+    id: 'sign-in-modal.signin-message.add-owner',
+    defaultMessage: "You'll need to sign in to assign moderators.",
+  },
+  removeOwner: {
+    id: 'sign-in-modal.signin-message.remove-owner',
+    defaultMessage: "You'll need to sign in to assign moderators.",
+  },
+  createAvatar: {
+    id: 'sign-in-modal.signin-message.create-avatar',
+    defaultMessage: "You'll need to sign in to create avatars.",
+  },
+  remixAvatar: {
+    id: 'sign-in-modal.signin-message.remix-avatar',
+    defaultMessage: "You'll need to sign in to remix avatars.",
+  },
+  remixScene: {
+    id: 'sign-in-modal.signin-message.remix-scene',
+    defaultMessage: "You'll need to sign in to remix scenes.",
+  },
+  favoriteRoom: {
+    id: 'sign-in-modal.signin-message.favorite-room',
+    defaultMessage:
+      "You'll need to sign in to add this room to your favorites.",
+  },
+  favoriteRooms: {
+    id: 'sign-in-modal.signin-message.favorite-rooms',
+    defaultMessage: "You'll need to sign in to add favorite rooms.",
+  },
+  tweet: {
+    id: 'sign-in-modal.signin-message.tweet',
+    defaultMessage: "You'll need to sign in to send tweets.",
+  },
+})
 
 export interface SubmitEmailProps {
   onSubmitEmail: (email: string) => void

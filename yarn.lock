@@ -1493,20 +1493,20 @@
     "@tanstack/start-server-core" "1.169.15"
     pathe "^2.0.3"
 
+"@tanstack/react-store@^0.11.0":
+  version "0.11.0"
+  resolved "https://registry.yarnpkg.com/@tanstack/react-store/-/react-store-0.11.0.tgz#a547563f65b50d0d2b37d5337cc708571af96486"
+  integrity sha512-tX4YXh3PDkmpvGQWkWqKpzs/MSqbtuwY9dWdWhtV9Q50PmO+jOkUKIWIX4G85dwt7lxdHLXsiaEKPdKmC8F41w==
+  dependencies:
+    "@tanstack/store" "0.11.0"
+    use-sync-external-store "^1.6.0"
+
 "@tanstack/react-store@^0.9.3":
   version "0.9.3"
   resolved "https://registry.yarnpkg.com/@tanstack/react-store/-/react-store-0.9.3.tgz#4d19d982a4612cc21cedf5ab25a62617323509c9"
   integrity sha512-y2iHd/N9OkoQbFJLUX1T9vbc2O9tjH0pQRgTcx1/Nz4IlwLvkgpuglXUx+mXt0g5ZDFrEeDnONPqkbfxXJKwRg==
   dependencies:
     "@tanstack/store" "0.9.3"
-    use-sync-external-store "^1.6.0"
-
-"@tanstack/react-store@latest":
-  version "0.11.0"
-  resolved "https://registry.yarnpkg.com/@tanstack/react-store/-/react-store-0.11.0.tgz#a547563f65b50d0d2b37d5337cc708571af96486"
-  integrity sha512-tX4YXh3PDkmpvGQWkWqKpzs/MSqbtuwY9dWdWhtV9Q50PmO+jOkUKIWIX4G85dwt7lxdHLXsiaEKPdKmC8F41w==
-  dependencies:
-    "@tanstack/store" "0.11.0"
     use-sync-external-store "^1.6.0"
 
 "@tanstack/router-cli@^1.132.0":

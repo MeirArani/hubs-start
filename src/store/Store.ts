@@ -1,10 +1,12 @@
-export default class Store extends EventTarget {
-  state = {
-    preferences: {
-      theme: 'default',
-    },
-  }
-  constructor() {
-    super()
-  }
-}
+import { createStore } from '@tanstack/react-store'
+
+export const store = createStore({
+  preferences: {
+    theme: 'default',
+  },
+  activity: {
+    hasAcceptedProfile: false,
+    hasChangedNameOrPronouns: false,
+  },
+  waitingOnAudio: false,
+})

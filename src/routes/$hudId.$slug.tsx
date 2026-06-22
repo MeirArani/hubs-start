@@ -2,16 +2,16 @@ import { createFileRoute } from '@tanstack/react-router'
 import { useRef } from 'react'
 import { Canvas } from '@react-three/fiber'
 import Store from '#/store/Store'
-import WrappedIntlProvider from '#/components/wrapped-intl-provider'
+import WrappedIntlProvider from '#/components/WrappedIntlProvider'
 import { IntlProvider } from 'react-intl'
 import { ThemeProvider } from '#/components/styles/theme'
+import { getRouter } from '#/router'
 
 export const Route = createFileRoute('/$hudId/$slug')({
   component: RouteComponent,
 })
 
 const store = new Store()
-
 // const three = (
 //   <Canvas>
 //     <ambientLight intensity={0.1} />

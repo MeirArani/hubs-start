@@ -1,5 +1,3 @@
-import logo from '../../public/icons/app-logo.png'
-
 export default function AppLogo({ className }: { className?: string }) {
-  return <img className={className} src={logo}></img>
+  return <img className={className} src={'/noe-logo.svg'}></img>
 }
