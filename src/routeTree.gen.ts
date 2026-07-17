@@ -11,7 +11,8 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SigninRouteImport } from './routes/signin'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as HudIdSlugRouteImport } from './routes/$hudId.$slug'
+import { Route as ApiHubsRouteImport } from './routes/api/hubs'
+import { Route as HubIdSlugRouteImport } from './routes/$hubId.$slug'
 
 const SigninRoute = SigninRouteImport.update({
   id: '/signin',
@@ -23,40 +24,49 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const HudIdSlugRoute = HudIdSlugRouteImport.update({
-  id: '/$hudId/$slug',
-  path: '/$hudId/$slug',
+const ApiHubsRoute = ApiHubsRouteImport.update({
+  id: '/api/hubs',
+  path: '/api/hubs',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HubIdSlugRoute = HubIdSlugRouteImport.update({
+  id: '/$hubId/$slug',
+  path: '/$hubId/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/signin': typeof SigninRoute
-  '/$hudId/$slug': typeof HudIdSlugRoute
+  '/$hubId/$slug': typeof HubIdSlugRoute
+  '/api/hubs': typeof ApiHubsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/signin': typeof SigninRoute
-  '/$hudId/$slug': typeof HudIdSlugRoute
+  '/$hubId/$slug': typeof HubIdSlugRoute
+  '/api/hubs': typeof ApiHubsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/signin': typeof SigninRoute
-  '/$hudId/$slug': typeof HudIdSlugRoute
+  '/$hubId/$slug': typeof HubIdSlugRoute
+  '/api/hubs': typeof ApiHubsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/signin' | '/$hudId/$slug'
+  fullPaths: '/' | '/signin' | '/$hubId/$slug' | '/api/hubs'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/signin' | '/$hudId/$slug'
-  id: '__root__' | '/' | '/signin' | '/$hudId/$slug'
+  to: '/' | '/signin' | '/$hubId/$slug' | '/api/hubs'
+  id: '__root__' | '/' | '/signin' | '/$hubId/$slug' | '/api/hubs'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   SigninRoute: typeof SigninRoute
-  HudIdSlugRoute: typeof HudIdSlugRoute
+  HubIdSlugRoute: typeof HubIdSlugRoute
+  ApiHubsRoute: typeof ApiHubsRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -75,11 +85,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/$hudId/$slug': {
-      id: '/$hudId/$slug'
-      path: '/$hudId/$slug'
-      fullPath: '/$hudId/$slug'
-      preLoaderRoute: typeof HudIdSlugRouteImport
+    '/api/hubs': {
+      id: '/api/hubs'
+      path: '/api/hubs'
+      fullPath: '/api/hubs'
+      preLoaderRoute: typeof ApiHubsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/$hubId/$slug': {
+      id: '/$hubId/$slug'
+      path: '/$hubId/$slug'
+      fullPath: '/$hubId/$slug'
+      preLoaderRoute: typeof HubIdSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -88,7 +105,8 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   SigninRoute: SigninRoute,
-  HudIdSlugRoute: HudIdSlugRoute,
+  HubIdSlugRoute: HubIdSlugRoute,
+  ApiHubsRoute: ApiHubsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

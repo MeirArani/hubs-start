@@ -1,12 +1,12 @@
-import HomePage from '#/components/home/HomePage'
-import { createFileRoute } from '@tanstack/react-router'
+import HomePage from '#/react-components/home/HomePage';
+import { createFileRoute } from '@tanstack/react-router';
 
-export const Route = createFileRoute('/')({ component: Home })
+export const Route = createFileRoute('/')({ component: Home });
 
 function Home() {
   return (
-    <div className="home-root">
+    <div className="m-0 h-full flex flex-col">
       <HomePage />
     </div>
-  )
+  );
 }

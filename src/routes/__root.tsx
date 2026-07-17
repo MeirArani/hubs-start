@@ -1,8 +1,13 @@
-import { HeadContent, Scripts, createRootRoute } from '@tanstack/react-router'
-import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools'
-import { TanStackDevtools } from '@tanstack/react-devtools'
+/// <reference types="vite/client" />
+import { HeadContent, Scripts, createRootRoute } from '@tanstack/react-router';
+import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools';
+import { TanStackDevtools } from '@tanstack/react-devtools';
 // import appCss from #/styles/'
-import '#/styles/sass/styles/global.module.scss'
+import appCss from '#/styles/globals.css?url';
+// import { App } from '#/core/app';
+import faCSS from '@fortawesome/fontawesome-svg-core/styles.css?url';
+import { config } from '@fortawesome/fontawesome-svg-core';
+config.autoAddCss = false;
 
 export const Route = createRootRoute({
   head: () => ({
@@ -15,18 +20,22 @@ export const Route = createRootRoute({
         content: 'width=device-width, initial-scale=1',
       },
       {
-        title: 'TanStack Start Starter',
+        title: 'Hubs Start',
       },
     ],
     links: [
-      // {
-      //   rel: 'stylesheet',
-      //   href: appCss,
-      // },
+      {
+        rel: 'stylesheet',
+        href: appCss,
+      },
+      {
+        rel: 'stylesheet',
+        href: faCSS,
+      },
     ],
   }),
   shellComponent: RootDocument,
-})
+});
 
 function RootDocument({ children }: { children: React.ReactNode }) {
   return (
@@ -50,5 +59,5 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         <Scripts />
       </body>
     </html>
-  )
+  );
 }

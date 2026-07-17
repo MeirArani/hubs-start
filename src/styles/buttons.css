@@ -1,0 +1,40 @@
+@import "tailwindcss";
+
+.button-base {
+  height: 48px;
+  min-height: 48px;
+  width: min-content;
+  min-width: 156px;
+  font-weight: 700;
+  font-size: 12px;
+  border-radius: 8px;
+  border-width: 0;
+  border-color: transparent;
+  transition: background-color 0.1s ease-in-out;
+  white-space: nowrap;
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  svg {
+    flex-shrink: 0;
+    margin-right: 8px;
+  }
+}
+
+.button-basic{
+    @apply border-2 border-basic-border;
+}
+
+.button-transparent {
+    @apply border-bg-primary bg-bg-primary;
+}
+
+.button-accept {
+    @apply text-text5 bg-accept border-2 border-accept-border hover:text-text5-hover hover:bg-accept-hover active:text-text5-pressed active:bg-accept-pressed;
+
+    svg {
+        @apply text-text5;
+    }
+}

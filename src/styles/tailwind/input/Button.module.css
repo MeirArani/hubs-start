@@ -1,0 +1,6 @@
+@import "tailwindcss";
+
+
+:global(.keyboard-user) .button:focus {
+  border-color: transparent;
+}

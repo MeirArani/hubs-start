@@ -5,6 +5,14 @@
   "imports": {
     "#/*": "./src/*"
   },
+  "exports": {
+    "./jsx-runtime": {
+      "types": "./src/types/jsx-runtime.d.ts"
+    },
+    "./jsx-dev-runtime": {
+      "types": "./src/types/jsxdev-runtime.d.ts"
+    }
+  },
   "scripts": {
     "dev": "vite dev --port 3000",
     "generate-routes": "tsr generate",
@@ -21,6 +29,7 @@
     "@fortawesome/fontawesome-svg-core": "^7.2.0",
     "@fortawesome/free-solid-svg-icons": "^7.2.0",
     "@fortawesome/react-fontawesome": "^3.3.1",
+    "@inlang/paraglide-js-react": "^1.0.2",
     "@popperjs/core": "^2.11.8",
     "@react-three/fiber": "^9.6.1",
     "@tailwindcss/vite": "^4.1.18",
@@ -32,22 +41,38 @@
     "@tanstack/react-store": "^0.11.0",
     "@tanstack/router-plugin": "^1.132.0",
     "@tanstack/store": "latest",
+    "@types/lodash-es": "^4.17.12",
     "@types/three": "^0.184.1",
-    "aframe": "^1.7.1",
+    "@uidotdev/usehooks": "^2.4.1",
+    "aframe": "^1.8.0",
+    "animejs": "^4.5.0",
+    "bitecs": "^0.4.0",
+    "dashjs": "^5.2.0",
+    "eventemitter3": "^5.0.4",
+    "hls.js": "^1.6.16",
+    "jwt-decode": "^4.0.0",
+    "lodash-es": "^4.18.1",
     "lucide-react": "^0.545.0",
+    "mediasoup-client": "^3.21.0",
     "networked-aframe": "^0.14.3",
     "nitro": "npm:nitro-nightly@latest",
+    "phoenix": "^1.8.8",
+    "protoo-client": "^4.0.8",
     "react": "^19.2.0",
     "react-dom": "^19.2.7",
     "react-intl": "^10.1.13",
     "react-popper": "^2.3.0",
+    "react-textarea-autosize": "^8.5.9",
     "react-use-css-breakpoints": "^1.0.5",
     "screenfull": "^6.0.2",
     "tailwindcss": "^4.1.18",
-    "three": "^0.184.0"
+    "three": "^0.184.0",
+    "troika-three-text": "^0.52.4",
+    "use-clipboard-copy": "^0.2.0"
   },
   "devDependencies": {
     "@formatjs/unplugin": "^1.1.19",
+    "@inlang/paraglide-js": "^2.20.1",
     "@tailwindcss/typography": "^0.5.16",
     "@tanstack/devtools-event-client": "latest",
     "@tanstack/devtools-vite": "latest",
@@ -57,6 +82,8 @@
     "@testing-library/react": "^16.3.0",
     "@types/aframe": "^1.2.9",
     "@types/node": "^22.10.2",
+    "@types/phoenix": "^1.6.7",
+    "@types/protoo-client": "^4.0.4",
     "@types/react": "^19.2.0",
     "@types/react-dom": "^19.2.0",
     "@types/screenfull": "^4.1.0",
@@ -66,6 +93,7 @@
     "prettier": "^3.8.1",
     "sass-embedded": "^1.100.0",
     "sass-migrator": "^2.6.0",
+    "types-aframe-react": "^1.0.2",
     "typescript": "^7.0.1-rc",
     "vite": "^8.0.0",
     "vite-plugin-svgr": "^5.2.0",

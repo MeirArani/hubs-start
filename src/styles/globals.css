@@ -1,0 +1,617 @@
+@import "tailwindcss";
+@import "@fontsource/poppins/400";
+@import "@fontsource/poppins/500";
+@import "@fontsource/poppins/700";
+
+@theme {
+  --breakpoint-vr: 600px;
+
+  --text-xs: 10px;
+  --text-sm: 12px;
+  --text-md: 14px;
+  --text-lg: 20px;
+  --text-xl: 24px;
+  --text-2xl: 28px;
+
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-bold: 700;
+
+  --radius-base: 8px;
+  --radius-sm: 6px;
+
+  --spacing-2xs: 4px;
+  --spacing-xs: 8px;
+  --spacing-sm: 12px;
+  --spacing-md: 16px;
+  --spacing-lg: 20px;
+  --spacing-xl: 24px;
+
+  --color-transparent: transparent;
+  --color-transparent-hover: rgba(0, 0, 0, 0.08);
+  --color-transparent-pressed: rgba(0, 0, 0, 0.12);
+
+  --color-white: #ffffff;
+  --color-white-hover: #e7e7e7;
+  --color-white-pressed: #dbdbdb;
+
+  --color-lightgrey: oklch(92.8% 0.006 264.531);
+  --color-lightgrey-hover: #f5f5f5;
+  --color-lightgrey-pressed: #dbdbdb;
+
+  --color-grey: #bbbbbb;
+  --color-grey-hover: #c7c7c7;
+  --color-grey-pressed: #adadad;
+
+  --color-darkgrey: #868686;
+  --color-darkgrey-hover: #949494;
+  --color-darkgrey-pressed: #7a7a7a;
+
+  --color-black: #000000;
+  --color-black-hover: #404040;
+  --color-black-pressed: #7a7a7a;
+
+  --color-red: #f5325c;
+  --color-red-hover: #f64b70;
+  --color-red-pressed: #f41a49;
+
+  --color-orange: #ff8500;
+  --color-orange-hover: #ff911a;
+  --color-orange-pressed: #e67800;
+
+  --color-green: #7ed320;
+  --color-green-hover: #8cdf2f;
+  --color-green-pressed: #72be1d;
+
+  --color-blue: #007ab8;
+  --color-blue-hover: #008bd1;
+  --color-blue-pressed: #00699e;
+
+  --color-purple: #7854f6;
+  --color-purple-hover: #8c6ef7;
+  --color-purple-pressed: #663df5;
+
+  --color-recessed: #f9f9f9;
+
+  --color-yellow: #ffc000;
+
+
+  /* Brand Colors */
+  --color-spoke-primary-color: #2f80ed;
+  --color-twitter-primary-color: #6fc0fd;
+  --color-slack-primary-color: #611f69;
+  --color-discord--primary-color: #7289da;
+
+  /* Discord Bot Page Colors */
+  --color-discord-color: #2a2d32;
+  --color-discord-text1-color: white;
+  --color-discord-text2-color: #a3a3a3;
+  --color-discord-text3-color: rgb(127, 127, 127);
+  --color-discord-text4-color: rgb(64, 64, 64);
+
+  --font-sans: "Poppins", "-apple-system", "BlinkMacSystemFont", "Segoe UI", "Roboto", "Helvetica", "Arial", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+  --font-mono: Consolas, "Andale Mono WT", "Andale Mono", "Lucida Console", "Lucida Sans Typewriter", "DejaVu Sans Mono",
+      "Bitstream Vera Sans Mono", "Liberation Mono", "Nimbus Mono L", Monaco, "Courier New", Courier, monospace;
+
+
+}
+
+@theme inline {
+/* Theme Colors */
+  --color-text-primary: var(--color-black);
+  --color-text-primary-hover: var(--color-black-hover);
+  --color-text-primary-pressed: var(--color-black-pressed);
+  --color-text-secondary: var(--color-darkgrey);
+  --color-text-secondary-hover: var(--color-darkgrey-hover);
+  --color-text-secondary-pressed: var(--color-darkgrey-pressed);
+  --color-text-tertiary: var(--color-grey);
+  --color-text-tertiary-hover: var(--color-grey-hover);
+  --color-text-tertiary-pressed: var(--color-grey-pressed);
+
+
+  --color-text4: var(--color-darkgrey);
+  --color-text4-hover: var(--color-text4);
+  --color-text4-pressed: var(--color-text4);
+  --color-text5: var(--color-white);
+  --color-text5-hover: var(--color-text5);
+  --color-text5-pressed: var(--color-text5);
+  --color-text-inverted: var(--color-white);
+
+  --color-link: var(--color-blue);
+  --color-link-hover: var(--color-blue-hover);
+  --color-link-pressed: var(--color-blue-pressed);
+
+  --color-accept: var(--color-green);
+  --color-accept-border: var(--color-green);
+  --color-accept-hover: var(--color-green-hover);
+  --color-accept-pressed: var(--color-green-pressed);
+
+  --color-cancel: var(--color-red);
+  --color-cancel-hover: var(--color-red-hover);
+  --color-cancel-pressed: var(--color-red-pressed);
+
+  --color-accent1: var(--color-red);
+  --color-accent1-border: var(--color-accent1);
+  --color-accent1-hover: var(--color-red-hover);
+  --color-accent1-pressed: var(--color-red-pressed);
+
+  --color-accent2: var(--color-orange);
+  --color-accent2-border: var(--color-accent2);
+  --color-accent2-hover: var(--color-orange-hover);
+  --color-accent2-pressed: var(--color-orange-pressed);
+
+  --color-accent3: var(--color-green);
+  --color-accent3-border: var(--color-accent3);
+  --color-accent3-hover: var(--color-green-hover);
+  --color-accent3-pressed: var(--color-green-pressed);
+
+  --color-accent4: var(--color-blue);
+  --color-accent4-border: var(--color-accent4);
+  --color-accent4-hover: var(--color-blue-hover);
+  --color-accent4-pressed: var(--color-blue-pressed);
+
+  --color-accent5: var(--color-purple);
+  --color-accent5-border: var(--color-accent5);
+  --color-accent5-hover: var(--color-purple-hover);
+  --color-accent5-pressed: var(--color-purple-pressed);
+
+  --color-accent6: var(--color-black);
+  --color-accent6-hover: var(--color-black-hover);
+  --color-accent6-pressed: var(--color-black-pressed);
+
+  --color-primary: var(--color-blue);
+  --color-primary-hover: var(--color-blue-hover);
+  --color-primary-pressed: var(--color-blue-pressed);
+
+  --color-secondary: var(--color-lightgrey);
+
+  --color-bg-primary: var(--color-white);
+  --color-bg-secondary: var(--color-recessed);
+  --color-bg-gray: var(--color-lightgrey);
+  --color-bg-darkgray: var(--color-grey);
+
+  --color-loading-screen-background: radial-gradient(50% 50% at 50% 50%, #ffffff 0%, #eeeeee 100%);
+
+  --color-border-primary: var(--color-lightgrey);
+  --color-border-secondary: var(--color-grey);
+
+  --color-outline: var(--color-black);
+
+  --color-shadow: rgba(0, 0, 0, 0.2);
+
+  --color-basic: var(--color-white);
+  --color-basic-hover: var(--color-white-hover);
+  --color-basic-pressed: var(--color-white-pressed);
+  --color-basic-border: var(--color-border-primary);
+
+  --color-disabled-text: var(--color-text4);
+  --color-disabled: var(--color-lightgrey);
+  --color-disabled-icon: var(--color-bg4);
+
+  --color-radio-border: var(--color-border-primary);
+  --color-radio: var(--color-basic);
+  --color-radio-hover: var(--color-basic-hover);
+  --color-radio-pressed: var(--color-basic-pressed);
+
+  --color-toggle-button: var(--color-bg4);
+
+  --color-input: var(--color-bg1);
+  --color-input-icon: var(--color-text-secondary);
+  --color-input-border: var(--color-darkgrey);
+  --color-input-border-hover: var(--color-primary-hover);
+  --color-input-outline: var(--color-primary);
+
+  --color-button-text: var(--color-text-primary);
+  --color-button-border: var(--color-border-primary);
+  --color-button: var(--color-basic);
+  --color-button-hover: var(--color-basic-hover);
+  --color-button-pressed: var(--color-basic-pressed);
+
+  --color-active-text: var(--color-text5);
+  --color-active: var(--color-primary);
+  --color-active-hover: var(--color-primary-hover);
+  --color-active-pressed: var(--color-primary-pressed);
+
+  --color-chat-bubble-sent: var(--color-accent4);
+  --color-chat-bubble-text-sent: var(--color-text5);
+  --color-chat-bubble-link-sent-hover: var(--color-basic-hover);
+  --color-chat-bubble-link-sent-pressed: var(--color-basic-pressed);
+  --color-chat-bubble-received: var(--color-bg3);
+
+  --color-favorite: var(--color-yellow);
+
+  --color-error: var(--color-cancel);
+
+  --color-overlay: rgba(0, 0, 0, 0.5);
+  --color-overlay-text: var(--color-white);
+  --color-overlay-border: var(--color-grey);
+
+  --color-toolbar-icon: var(--color-text5);
+  --color-toolbar-icon-selected: var(--color-transparent);
+  --color-toolbar-basic-icon: var(--color-text-primary);
+  --color-toolbar-basic-selected-icon: var(--color-text-primary);
+  --color-toolbar-basic: var(--color-secondary);
+  --color-toolbar-basic-hover: var(--color-secondary-hover);
+  --color-toolbar-basic-pressed: var(--color-secondary-pressed);
+  --color-toolbar-basic-border: var(--color-basic-border);
+
+  --color-tile-text: var(--color-text-secondary);
+  --color-tile: var(--color-secondary);
+  --color-tile-hover: var(--color-secondary-hover);
+  --color-tile-pressed: var(--color-secondary-pressed);
+  --tile-button-text-color: var(--color-text-primary);
+  --color-tile-button: var(--color-basic);
+  --color-tile-button-hover: var(--color-basic-hover);
+  --color-tile-button-pressed: var(--color-basic-pressed);
+  --color-tile-button-border: var(--color-basic-border);
+
+}
+
+
+
+
+/* Mozilla Lilypad compatible variables */
+@variant dark {
+  /**
+PRIMARY INTERACTION
+**/
+--color-interaction-primary: #5282ff;
+--color-interaction-primary-hover: #7092e4;
+--color-interaction-primary-active: #7092e4;
+--color-interaction-primary-disabled: rgba(176, 176, 176, 0.5);
+--color-interaction-primary-alt: #ffffff;
+--color-interaction-primary-alt-hover: #e8effd;
+--color-interaction-primary-alt-active: #cbd8f0;
+--color-interaction-primary-alt-disabled: #e7e7e7;
+
+/**
+SECONDARY INTERACTION
+**/
+--color-interaction-secondary: #696e79;
+--color-interaction-secondary-hover: #515764;
+--color-interaction-secondary-active: #515764;
+--color-interaction-secondary-disabled: rgba(176, 176, 176, 0.5);
+--color-interaction-secondary-alt: #ffffff;
+--color-interaction-secondary-alt-hover: #e8e8e8;
+--color-interaction-secondary-alt-active: #d9d9d9;
+--color-interaction-secondary-alt-disabled: #e7e7e7;
+
+/**
+SEMANTIC
+**/
+--color-semantic-info: #0073bd;
+--color-semantic-info-hover: #0061a1;
+--color-semantic-info-active: #004e84;
+--color-semantic-disabled: #6f6f6f;
+--color-semantic-success: #0c884c;
+--color-semantic-success-hover: #08743f;
+--color-semantic-success-active: #045f33;
+--color-semantic-success-disabled: #767676;
+--color-semantic-warning: #a86500;
+--color-semantic-warning-hover: #915200;
+--color-semantic-warning-active: #783f00;
+--color-semantic-warning-disabled: #747474;
+--color-semantic-critical: #d32947;
+--color-semantic-critical-hover: #de3a57;
+--color-semantic-critical-active: #e84d68;
+--color-semantic-critical-disabled: #6e6e6e;
+--color-semantic-critical-alt: #f9e1e5;
+--color-semantic-neutral: #222222;
+--color-semantic-neutral-hover: #3a3a3a;
+--color-semantic-neutral-active: #535353;
+--color-semantic-neutral-disabled: #6e6e6e;
+
+/**
+TEXT
+**/
+--color-text-main: #cdcdcd;
+--color-text-subtle: #767676;
+--color-text-reverse: #000000;
+--color-text-reverse-subtle: #212121;
+--color-text-disabled: #4a4a4a;
+--color-text-info: #cdcdcd;
+--color-text-success: #cdcdcd;
+--color-text-warning: #cdcdcd;
+--color-text-critical: #cdcdcd;
+
+/**
+BORDER
+**/
+--color-border-primary: #2d2d2d;
+--color-border-secondary: #1a1a1a;
+
+/**
+NEUTRALS
+**/
+--color-neutral-0: #1a1a1a;
+--color-neutral-0-reverse: #ffffff;
+--color-neutral-1: #262626;
+--color-neutral-2: #2e2e2e;
+--color-neutral-3: #363636;
+
+/**
+STATUS
+**/
+--color-status-ready: #7ed320;
+--color-status-offline: #ada7a8;
+--color-status-busy: #f19b53;
+
+/**
+BACKGROUNDS
+**/
+--color-background-overlay: rgba(23, 10, 122, 0.4);
+--color-background-overlay-2: rgba(23, 10, 122, 0.6);
+--color-background-subtle-callout: #e8effd;
+--color-background-modal-overlay: rgba(0, 0, 0, 0.3);
+--color-background-critical: #f9e1e5;
+--color-background-neutral-0: #ffffff;
+
+/**
+MENU
+**/
+--color-interactions-menu: #ffffff;
+--color-interactions-menu-hover: #2f2f2f;
+--color-interactions-menu-inactive: #757575;
+
+/**
+BRAND
+**/
+--color-brand-cool: linear-gradient(90deg, #6ae1d9 0%, #9898ff 100%);
+}
+
+
+
+html {
+  height: 100%;
+  overflow: hidden;
+}
+
+body {
+  height: 100%;
+  overflow: auto;
+  overscroll-behavior-y: none;
+  color: var(--color-text-primary);
+}
+
+
+
+/**
+ * https://css-tricks.com/inheriting-box-sizing-probably-slightly-better-best-practice/
+ */
+html {
+  box-sizing: border-box;
+  line-height: 1;
+}
+
+/* *,
+*:before,
+*:after {
+  box-sizing: inherit;
+} */
+
+/**
+ * Forked from Tailwind CSS
+ */
+
+/**
+ * Removes the default spacing and border for appropriate elements.
+ */
+
+/* blockquote,
+dl,
+dd,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+hr,
+figure,
+p,
+pre {
+  margin: 0;
+} */
+
+fieldset {
+  margin: 0;
+  padding: 0;
+}
+
+ol,
+ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+textarea {
+  resize: vertical;
+}
+
+button,
+[role="button"] {
+  cursor: pointer;
+  user-select: none;
+}
+
+table {
+  border-collapse: collapse;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-size: inherit;
+  font-weight: var(--font-weight-bold);
+}
+
+/**
+ * Reset links to optimize for opt-in styling instead of
+ * opt-out.
+ */
+
+a {
+  color: inherit;
+  text-decoration: inherit;
+}
+
+
+/**
+ * Monospace font stack: https://css-tricks.com/snippets/css/font-stacks/
+ */
+
+pre,
+code,
+kbd,
+samp {
+  font-family: var(--font-family-monospace);
+}
+
+/**
+ * Make replaced elements `display: block` by default as that's
+ * the behavior you want almost all of the time. Inspired by
+ * CSS Remedy, with `svg` added as well.
+ *
+ * https://github.com/mozdevs/cssremedy/issues/14
+ */
+
+img,
+svg,
+video,
+canvas,
+audio,
+iframe,
+embed,
+object {
+  display: block;
+  vertical-align: middle;
+}
+
+img:-moz-broken {
+  opacity: 0;
+}
+
+/**
+ * Constrain images and videos to the parent width and preserve
+ * their instrinsic aspect ratio.
+ *
+ * https://github.com/mozdevs/cssremedy/issues/14
+ */
+
+img,
+video {
+  max-width: 100%;
+  height: auto;
+}
+
+label {
+  @apply text-xs font-bold;
+}
+
+body :focus,
+[type="button"]:focus {
+  outline: none;
+}
+
+:global(.keyboard-user) :focus {
+  box-shadow: 0 0 0 3px var(--color-outline);
+}
+
+/* We want svg icons to have title elements for screen readers, but we don't need to show their tooltips when they are inside buttons */
+button svg {
+  pointer-events: none;
+}
+
+/**
+ * Breakpoint definitions for use wuth react-use-css-breakpoints
+ * https://github.com/matthewhall/react-use-css-breakpoints
+ */
+body::before {
+  @apply hidden content-["sm"] md:vr:content-["md"] lg:vr:content-["lg"] xl:vr:content-["xl"] 2xl:vr:content-["xxl"]
+}
+
+
+
+/* // TODO: Add the rest of the base typography styles */
+
+h5 {
+  font-size: var(--font-size-sm);
+}
+
+label,
+small,
+strong {
+  @apply text-xs font-bold;
+}
+
+small {
+  color: var(--color-text-secondary);
+}
+
+p,
+small,
+strong {
+  line-height: 1.25;
+}
+
+a {
+  color: var(--color-link);
+
+  &:hover {
+    color: var(--color-link-hover);
+  }
+
+  &:active {
+    color: var(--color-link-pressed);
+  }
+}
+
+hr {
+  position: relative;
+  width: 90%;
+  border: none;
+  border-bottom: 1px solid var(--color-border2);
+  margin: 16px 0;
+
+  &:after {
+    background: var(--color-bg1);
+    content: attr(data-or-text);
+    padding: 0 4px;
+    position: relative;
+    color: var(--color-text-primary);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-bold);
+    position: absolute;
+    transform: translateY(-50%) translateX(-50%);
+  }
+}
+
+input::placeholder {
+  color: var(--color-text-tertiary);
+}
+
+/* path {
+  stroke: white;
+} */
+
+summary {
+  cursor: pointer;
+}
+
+.hmc-logo {
+  color: var(--color-primary);
+}
+
+small {
+  font-size: 0.8rem;
+}
+
+
+@custom-variant popover-bottom (&[data-popper-placement^="bottom"]);
+@custom-variant popover-top (&[data-popper-placement^="top"]);
+@custom-variant popover-right (&[data-popper-placement^="right"]);
+@custom-variant popover-left (&[data-popper-placement^="left"]);

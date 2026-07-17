@@ -1,4 +1,4 @@
-@use "../styles/theme.module.scss";
+@use "../theme.module.scss";
 
 :local(.room-layout) {
   display: grid;
@@ -27,7 +27,7 @@
   overflow: hidden;
   width: 450px;
 
-  @media (max-width: theme.$breakpoint-lg - 1), (max-height: theme.$breakpoint-vr - 1) {
+  @media (max-width: theme.$breakpoint-lg - 1px), (max-height: theme.$breakpoint-vr - 1px) {
     position: fixed;
     top: 0;
     left: 0;
@@ -81,7 +81,7 @@
 }
 
 :local(.object-focused) {
-  @media (max-width: theme.$breakpoint-lg - 1), (max-height: theme.$breakpoint-vr - 1) {
+  @media (max-width: theme.$breakpoint-lg - 1px), (max-height: theme.$breakpoint-vr - 1px) {
     :local(.toolbar) {
       display: none;
     }
