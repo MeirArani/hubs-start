@@ -9,7 +9,7 @@ import {
 import RoomEntryModal from './room/RoomEntryModal';
 import { AudioContext } from './WrapWithAudio';
 import PreloadOverlay from './PreloadOverlay';
-import type { Hub } from '#/types/hubs';
+import type { Hub, UserInfo } from '#/types/hubs';
 import { store } from '#/store/store';
 import { useSelector } from '@tanstack/react-store';
 import type HubChannel from '#/core/hub-channel';
@@ -35,6 +35,7 @@ import ToolbarButton, { ChatToolbarButton } from './input/ToolbarButton';
 import EnterIcon from './icons/Enter.svg?react';
 import LeaveIcon from './icons/Leave.svg?react';
 import { InvitePopoverContainer } from './room/InvitePopoverContainer';
+import ChatSidebarContainer from './room/ChatSidebarContainer';
 
 const isMobileVR = false;
 const isMobile = false;
@@ -45,6 +46,7 @@ interface ConditionalSignIn {
   signInMessage: string;
   onFailure?: (e: Error) => void;
 }
+
 interface UIRootProps {
   showPreload?: boolean;
   hub: Hub;
@@ -57,6 +59,7 @@ interface UIRootProps {
   breakpoint?: string;
   activeObject?: unknown;
   forcedVREntryType?: string;
+  presences?: Record<string, UserInfo>;
   performConditionalSignIn?: (
     predicate: () => boolean,
     action: () => void,
@@ -66,13 +69,24 @@ interface UIRootProps {
   showBitECSBasedClientRefreshPrompt?: boolean;
 }
 
+type SidebarType =
+  | 'chat'
+  | 'objects'
+  | 'people'
+  | 'profile'
+  | 'user'
+  | 'room-info'
+  | 'room-info-settings'
+  | 'room-settings'
+  | 'ecs-debug';
+
 interface UIState {
   entering: boolean;
   watching: boolean;
   entered: boolean;
   presenceCount: number;
   audioContext?: AudioContext;
-  sidebarId: string | null;
+  sidebarId: SidebarType | null;
   chatPrefix: string;
   chatAutofocus: boolean;
   selectedUserId: string | null;
@@ -87,7 +101,7 @@ const initUIState: UIState = {
   entered: false,
   presenceCount: 0,
   isStreaming: false,
-  sidebarId: '',
+  sidebarId: null,
   chatPrefix: '',
   chatAutofocus: false,
   selectedUserId: null,
@@ -97,10 +111,10 @@ const initUIState: UIState = {
 
 type UITask =
   | { type: 'updateWatching'; watching: boolean }
-  | { type: 'setSidebar'; id: string | null }
+  | { type: 'setSidebar'; id: SidebarType | null }
   | {
       type: 'toggleSidebar';
-      id: string;
+      id: SidebarType;
       otherState?: { chatPrefix: string; chatAutofocus: false };
     };
 
@@ -223,6 +237,10 @@ export default function UIRoot(props: UIRootProps) {
     );
   };
 
+  const occupantCount = () => {
+    return props.presences ? Object.entries(props.presences).length : 0;
+  };
+
   return (
     <>
       <MoreMenuContextProvider>
@@ -313,7 +331,28 @@ export default function UIRoot(props: UIRootProps) {
                     {state.sidebarId !== 'chat' && props.hub && <PresenceLog />} */}
                   </>
                 }
-                sidebar={null}
+                sidebar={
+                  state.sidebarId ? (
+                    <>
+                      {state.sidebarId === 'chat' && (
+                        <ChatSidebarContainer
+                          presences={props.presences}
+                          occupantCount={occupantCount()}
+                          canSpawnMessages={
+                            state.entered &&
+                            props.hubChannel.can('spawn_and_move_media')
+                          }
+                          scene={props.scene}
+                          onClose={() => {
+                            dispatchState({ type: 'setSidebar', id: null });
+                          }}
+                          autoFocus={state.chatAutofocus}
+                          initialValue={state.chatPrefix}
+                        />
+                      )}
+                    </>
+                  ) : undefined
+                }
                 modal={null}
                 toolbarLeft={
                   <>

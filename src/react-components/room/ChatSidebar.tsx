@@ -1,4 +1,10 @@
-import { memo, type HTMLProps, type ReactNode, type Ref } from 'react';
+import {
+  memo,
+  type HTMLAttributes,
+  type HTMLProps,
+  type ReactNode,
+  type Ref,
+} from 'react';
 import IconButton, { type IconButtonProps } from '../input/IconButton';
 import WandIcon from '../icons/Wand.svg?react';
 import SendIcon from '../icons/Send.svg?react';
@@ -16,19 +22,28 @@ import { CloseButton } from '../input/CloseButton';
 import Sidebar, { type SidebarProps } from '../sidebar/Sidebar';
 import type { TextAreaInputProps } from '../input/TextAreaInput';
 import TextAreaInput from '../input/TextAreaInput';
+import { formatMessageBody } from '#/utils/chat-message-utils';
 
-export function SpawnMessageButton(props: IconButtonProps) {
+export function SpawnMessageButton(
+  props: IconButtonProps<'button'> & React.ComponentPropsWithRef<'button'>,
+) {
   return (
-    <IconButton className="chat-input-icon" {...props}>
-      <WandIcon />
+    <IconButton
+      className="cursor-pointer w-6 disabled:cursor-default"
+      {...props}
+    >
+      <WandIcon className="text-input-icon" />
     </IconButton>
   );
 }
 
 export function SendMessageButton(props: IconButtonProps) {
   return (
-    <IconButton className="chat-input-icon" {...props}>
-      <SendIcon />
+    <IconButton
+      className="cursor-pointer w-6 disabled:cursor-default"
+      {...props}
+    >
+      <SendIcon className="text-input-icon" />
     </IconButton>
   );
 }
@@ -90,12 +105,12 @@ export const EmojiPickerPopoverButton = memo(function ({
   //       {({ togglePopover, popoverVisible, triggerRef }) => (
   //         <IconButton
   //           ref={triggerRef}
-  //           className="chat-input-icon"
+  //           className="cursor-pointer w-6 disabled:cursor-default"
   //           selected={popoverVisible}
   //           onClick={togglePopover}
   //           disabled={disabled}
   //         >
-  //           <ReactionIcon />
+  //           <ReactionIcon classname='text-input-icon' />
   //         </IconButton>
   //       )}
   //     </Popover>
@@ -106,11 +121,11 @@ export function MessageAttachmentButton(props: HTMLProps<HTMLInputElement>) {
   return (
     <>
       <IconButton
-        as="label"
-        className="chat-input-icon"
+        // as="label"
+        className="cursor-pointer w-6 disabled:cursor-default"
         disabled={props.disabled}
       >
-        <AttachIcon />
+        <AttachIcon className="text-input-icon" />
         <input type="file" {...props} disabled={props.disabled} />
       </IconButton>
     </>
@@ -127,9 +142,7 @@ export function ChatLengthWarning({
   maxLength,
 }: ChatLengthWarningProps) {
   return (
-    <p
-      className={`chat-input-warning ${messageLength > maxLength ? 'warning-text-color' : ''}`}
-    >
+    <p className={`pt-2xs ${messageLength > maxLength ? 'text-red' : ''}`}>
       {m['chat-message-input.warning-max-characters']()}
       {` (${messageLength}/${maxLength})`}
     </p>
@@ -148,11 +161,11 @@ export function ChatInput({
   ...props
 }: ChatInputProps) {
   return (
-    <div className="chat-input-container">
+    <div className="py-2 px-4 bg-input basis-[max-content]">
       <TextAreaInput
         ref={ref}
-        textInputStyles="chatInputTextAreaStyles"
-        className={`${isOverMaxLength ? 'warning-border' : ''}`}
+        textInputStyles="chatInputTextAreaStyles resize-none leading-normal p-2"
+        className={`${isOverMaxLength ? 'border-2! border-red!' : ''}`}
         placeholder={m['chat-sidebar.input.placeholder']()}
         {...props}
       />
@@ -224,11 +237,13 @@ export interface SystemMessageProps extends Message {
 
 export function SystemMessage(props: SystemMessageProps) {
   return (
-    <li className="message-group system-message">
+    <li className="flex flex-col shrink-0 w-full pt-4 last:pb-2">
       {props.showLineBreak && <hr />}
-      <p className="message-group-label">
-        <i>{formatSystemMessage(props)}</i>
-        <span>{/* {FormatTime} */}</span>
+      <p className="inline align-bottom">
+        <i className="text-xs text-text-secondary">
+          {formatSystemMessage(props)}
+        </i>
+        <span className="ml-[1ch]">{/* {FormatTime} */}</span>
       </p>
     </li>
   );
@@ -239,6 +254,7 @@ interface MessageBubbleProps {
   monospace?: boolean;
   emoji?: boolean;
   children?: ReactNode;
+  sent?: boolean;
   permission?: boolean;
 }
 
@@ -246,19 +262,30 @@ function MessageBubble({
   media,
   monospace,
   emoji,
+  sent,
   children,
   permission,
 }: MessageBubbleProps) {
+  const styles = {
+    sent: sent
+      ? 'bg-chat-bubble-sent text-chat-bubble-sent self-end [&>a]:text-chat-bubble-text-sent [&>a]:hover:text-chat-bubble-link-sent-hover [&>a]:active:bg-chat-bubble-link-sent-pressed'
+      : 'bg-chat-bubble-received ',
+    monospace: monospace ? 'font-mono' : '',
+    permission: permission
+      ? 'flex gap-2.5 bg-transparent border border-input-border text-text-primary items-center'
+      : '',
+    emojiMedia: emoji || media ? 'text-[32px] bg-transparent p-0' : '',
+  } as const;
   return (
     <div
-      className={`message-bubble ${media ? 'media' : ''} ${emoji ? '' : ''} ${monospace ? 'monospace' : ''} ${permission ? '' : ''}`}
+      className={`rounded-2xl m-0.5 py-2.5 px-4 max-w-4/5 w-max text-md wrap-break-word leading-tight [&>img,video]:max-h-60 [&>img,video]:rounded-2xl [&>a]:underline ${styles['sent']} ${styles['monospace']} ${styles['permission']} ${styles['emojiMedia']}`}
     >
       {children}
     </div>
   );
 }
 
-function getMessageComponent(message: ChatMessage) {
+function getMessageComponent(message: ChatMessage, sent?: boolean) {
   const onShareClick = async () => {
     // REIMP
     try {
@@ -267,25 +294,37 @@ function getMessageComponent(message: ChatMessage) {
     }
   };
 
+  const styles = {
+    sent: {
+      'message-row': sent ? 'flex flex-row-reversed justify-end' : '',
+      'message-bubble': sent ? '' : '',
+    },
+  } as const;
+
   switch (message.type) {
     case 'chat': {
-      const { formattedBody, monospace, emoji } = formatMessageBody(
-        message.body,
-      );
+      const { formattedBody, monospace, emoji } = formatMessageBody({
+        body: message.body,
+      });
       return (
-        <MessageBubble key={message.id} monospace={monospace} emoji={emoji}>
+        <MessageBubble
+          sent={sent}
+          key={message.id}
+          monospace={monospace}
+          emoji={emoji}
+        >
           {formattedBody}
         </MessageBubble>
       );
     }
     case 'video': {
       return (
-        <div className="message-row">
-          <MessageBubble key={message.id} media>
+        <div className={`flex justify-start ${styles['sent']}`}>
+          <MessageBubble key={message.id} media sent={sent}>
             <video controls src={message.body.src} />
           </MessageBubble>
           <IconButton
-            className="icon-button"
+            className="w-12 h-12 flex shrink-0 justify-center items-center cursor-pointer rounded-2xl bg-transparent hover:pointer-fine:text-primary-hover"
             onClick={onShareClick}
             title={m['share-popover.title']()}
           >
@@ -297,12 +336,12 @@ function getMessageComponent(message: ChatMessage) {
     case 'image':
     case 'photo': {
       return (
-        <div className="message-row">
-          <MessageBubble key={message.id} media>
+        <div className={`flex justify-start ${styles['sent']}`}>
+          <MessageBubble key={message.id} media sent={sent}>
             <img src={message.body.src} />
           </MessageBubble>
           <IconButton
-            className="icon-button"
+            className="w-12 h-12 flex shrink-0 justify-center items-center cursor-pointer rounded-2xl bg-transparent hover:pointer-fine:text-primary-hover"
             onClick={onShareClick}
             title={m['share-popover.title']()}
           >
@@ -313,7 +352,7 @@ function getMessageComponent(message: ChatMessage) {
     }
     case 'permission': {
       return (
-        <MessageBubble key={message.id} media>
+        <MessageBubble key={message.id} media sent={sent}>
           <img src={message.body.src} />
         </MessageBubble>
       );
@@ -337,13 +376,15 @@ export function ChatMessageGroup({
   messages,
 }: ChatMessageGroupProps) {
   return (
-    <li className={`message-group ${sent ? 'sent' : ''}`}>
-      <p className="message-group-label">
+    <li className="flex flex-col grow list-none py-0 px-4 overflow-y-auto min-h-0">
+      <p
+        className={`text-text-secondary font-xs flex m-0.5 ${sent ? `self-end` : ``}`}
+      >
         {sender} // TODO: Timestamp stuff here
       </p>
-      <ul className="message-group-messages">
+      <ul className="flex flex-col">
         {messages?.map((message) => (
-          <li key={message.id}>{getMessageComponent(message)}</li>
+          <li key={message.id}>{getMessageComponent(message, sent)}</li>
         ))}
       </ul>
     </li>
@@ -361,9 +402,13 @@ export function PermissionMessageGroup({
   messages,
 }: PermissionMessageGroupProps) {
   return (
-    <li className={`message-group ${sent ? 'sent' : ''}`}>
-      <p className="message-group-label">// TODO: Timestamp</p>
-      <ul className="message-group-messages">
+    <li className="flex flex-col shrink-0 w-full pt-4 last:pb-2">
+      <p
+        className={`text-text-secondary text-xs flex m-0.5 ${sent ? 'self-end' : ''}`}
+      >
+        // TODO: Timestamp
+      </p>
+      <ul className="flex flex-col">
         {messages?.map((message) => (
           <li key={message.id}>
             <MessageBubble permission>
@@ -388,16 +433,22 @@ export function ChatMessageList({
   ref,
   ...rest
 }: ChatMessageListProps) {
-  <ul {...rest} className="" ref={ref}>
-    {children}
-  </ul>;
+  return (
+    <ul
+      {...rest}
+      className="flex flex-col grow list-none py-0 px-4 overflow-y-auto min-h-0"
+      ref={ref}
+    >
+      {children}
+    </ul>
+  );
 }
 
 export interface ChatSidebarProps extends SidebarProps {
-  onClose?: () => {};
+  onClose?: () => void;
   onScrollList?: () => {};
   children: ReactNode;
-  listRef: Ref<HTMLUListElement>;
+  listRef?: Ref<HTMLUListElement>;
 }
 
 export function ChatSidebar({
@@ -411,7 +462,6 @@ export function ChatSidebar({
     <Sidebar
       title={m['chat-sidebar.title']()}
       beforeTitle={<CloseButton onClick={onClose} />}
-      contentClassName="content"
       disableOverflowScroll
       {...rest}
     >

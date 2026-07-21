@@ -74,7 +74,10 @@ export function PermissionNotification({
   isMod,
 }: PermissionNotificationProps) {
   return (
-    <div key={permission} className={`pinned-message ${className}`}>
+    <div
+      key={permission}
+      className={`flex gap-2.5 bg-chat-bubble-received rounded-xl mty-2 mx-4 py-2.5 px-4 text-md wrap-break-word leading-tight items-center ${className}`}
+    >
       {permissionMessage({ permission: permission, status: false, isMod })}
     </div>
   );

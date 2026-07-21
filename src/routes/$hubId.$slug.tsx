@@ -5,6 +5,7 @@ import type { Hub } from '#/types/hubs';
 import HubChannel from '#/core/hub-channel';
 import type { Scene } from 'aframe';
 import { DummyPermissions } from '#/utils/dummy';
+import { App } from '#/core/app';
 
 interface HubSearchParams {
   hub_invite_id: string;
@@ -34,6 +35,8 @@ export const Route = createFileRoute('/$hubId/$slug')({
 // )
 
 function RouteComponent() {
+  window.APP = new App();
+
   // const t = Route.useParams()
   // const canvas = useRef(null)
   const params = Route.useParams();

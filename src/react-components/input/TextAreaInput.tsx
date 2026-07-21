@@ -10,11 +10,6 @@ export default function TextAreaInput({
   ...rest
 }: TextAreaInputProps) {
   return (
-    <TextInput
-      className={`textarea ${className}`}
-      {...rest}
-      autosize
-      ref={ref}
-    />
+    <TextInput className={`h-auto ${className}`} {...rest} autosize ref={ref} />
   );
 }

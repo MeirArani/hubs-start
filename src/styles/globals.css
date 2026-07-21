@@ -167,6 +167,7 @@
 
   --color-bg-primary: var(--color-white);
   --color-bg-secondary: var(--color-recessed);
+  --color-bg-tertiary: var(--color-lightgrey);
   --color-bg-gray: var(--color-lightgrey);
   --color-bg-darkgray: var(--color-grey);
 
@@ -195,7 +196,7 @@
 
   --color-toggle-button: var(--color-bg4);
 
-  --color-input: var(--color-bg1);
+  --color-input: var(--color-bg-primary);
   --color-input-icon: var(--color-text-secondary);
   --color-input-border: var(--color-darkgrey);
   --color-input-border-hover: var(--color-primary-hover);
@@ -216,7 +217,7 @@
   --color-chat-bubble-text-sent: var(--color-text5);
   --color-chat-bubble-link-sent-hover: var(--color-basic-hover);
   --color-chat-bubble-link-sent-pressed: var(--color-basic-pressed);
-  --color-chat-bubble-received: var(--color-bg3);
+  --color-chat-bubble-received: var(--color-bg-tertiary);
 
   --color-favorite: var(--color-yellow);
 
@@ -425,9 +426,9 @@ ul {
   padding: 0;
 }
 
-textarea {
+/* textarea {
   resize: vertical;
-}
+} */
 
 button,
 [role="button"] {
@@ -578,7 +579,7 @@ hr {
   margin: 16px 0;
 
   &:after {
-    background: var(--color-bg1);
+    background: var(--color-bg-primary);
     content: attr(data-or-text);
     padding: 0 4px;
     position: relative;

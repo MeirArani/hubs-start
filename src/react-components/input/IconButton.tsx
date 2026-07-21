@@ -1,40 +1,43 @@
-import { memo, useRef, type ReactNode } from 'react';
+import { createElement, type ComponentPropsWithoutRef } from 'react';
+import type {
+  PolymorphicForwardedRef,
+  PolymorphicProps,
+} from '@axa-ch/react-polymorphic-types';
 
-// import '#/styles/sass/input/IconButton.module.scss'
+export const IconButtonDefaultElement = 'button';
 
-type ValidTag = 'button' | 'label';
-export interface IconButtonProps<T extends ValidTag = 'button'> {
-  as?: T | ValidTag;
-  className?: string;
-  compactSm?: boolean;
-  lg?: boolean;
-  onClick?: React.MouseEventHandler<HTMLButtonElement>;
-  children?: ReactNode;
-}
-const IconButton = memo(function IconButton<T extends ValidTag = 'button'>({
-  as = 'button',
+export type IconButtonAllowedElements =
+  | typeof IconButtonDefaultElement
+  | 'label';
+
+export type IconButtonOwnProps<T extends IconButtonAllowedElements> =
+  ComponentPropsWithoutRef<T> & {
+    compactSm?: boolean;
+    lg?: boolean;
+    ref?: PolymorphicForwardedRef<T>;
+  };
+
+export type IconButtonProps<T extends IconButtonAllowedElements = 'button'> =
+  PolymorphicProps<IconButtonOwnProps<T>, T, IconButtonAllowedElements>;
+
+export default function IconButtonInner<T extends IconButtonAllowedElements>({
+  as = IconButtonDefaultElement,
   className,
   compactSm = false,
   lg = false,
-  onClick,
   children,
+  ref,
   ...rest
-}: IconButtonProps<T> & React.ComponentPropsWithoutRef<T>) {
-  const Tag: ValidTag = as;
-  1;
-  const buttonProps =
-    Tag === 'button' ? ({ type: 'button', onClick: onClick } as const) : {};
-  const ref = useRef(null);
-  return (
-    <Tag
-      className={`icon-button ${compactSm && 'compact-sm'} ${lg && 'lg'} ${className}`}
-      {...buttonProps}
-      {...rest}
-      ref={ref}
-    >
-      {children}
-    </Tag>
+}: IconButtonProps<T>) {
+  return createElement(
+    as,
+    {
+      ...rest,
+      ref,
+      className: `icon-button ${compactSm && 'compact-sm'} ${lg && 'lg'} ${className}`,
+    },
+    children,
   );
-});
+}
 
-export default IconButton;
+//TODO: Re-memoize this component

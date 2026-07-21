@@ -17,7 +17,7 @@ export function Toolbar({
   // center used to have absolute w-[calc(100%-48px)]
   return (
     <div
-      className={`relative h-24 flex justify-between p-3 bg-background1 border-t-border1 lg:py-3 lg:px-6 lg:justify-between ${className}`}
+      className={`relative h-24 flex justify-between p-3 bg-background1 border-t border-t-border-primary lg:py-3 lg:px-6 lg:justify-between ${className}`}
       {...rest}
     >
       <div

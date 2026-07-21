@@ -5,8 +5,8 @@ import React, {
   useRef,
   useCallback,
   useEffect,
+  type ChangeEvent,
 } from 'react';
-import { useIntl } from 'react-intl';
 import { ChatContext } from './ChatContext';
 import { useRole } from './hooks/useRole';
 import { useMaintainScrollPosition } from '../misc/useMaintainScrollPosition';
@@ -16,14 +16,15 @@ import { MaxMessageLength } from '#/utils/chat-message-utils';
 import {
   ChatInput,
   ChatLengthWarning,
+  ChatMessageGroup,
   ChatMessageList,
   ChatSidebar,
-  EmojiPickerPopoverButton,
   MessageAttachmentButton,
+  PermissionMessageGroup,
   SendMessageButton,
   SpawnMessageButton,
+  SystemMessage,
 } from './ChatSidebar';
-import { isMobile } from '#/utils/is-mobile';
 import { m } from '#/paraglide/messages';
 import { PermissionNotification } from './PermissionNotifications';
 
@@ -34,7 +35,7 @@ export interface ChatSidebarContainerProps {
   occupantCount: number;
   initialValue?: string;
   autoFocus?: boolean;
-  onClose: () => {};
+  onClose: () => void;
 }
 
 export default function ChatSidebarContainer({
@@ -54,7 +55,7 @@ export default function ChatSidebarContainer({
   const [isCommand, setIsCommand] = useState(false);
   const { text_chat: canTextChat } = usePermissions();
   const isMod = useRole({ role: 'owner' });
-  const { text_chat: textChatEnabled } = useRoomPermissions();
+  const { textChat: textChatEnabled } = useRoomPermissions();
   const typingTimeoutRef = useRef(0);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -93,15 +94,17 @@ export default function ChatSidebarContainer({
   }, [message, sendMessage, setMessage]);
 
   const onSpawnMessage = () => {
-    spawnChatMessage(message);
+    // REIMP
+    //spawnChatMessage(message);
     setMessage('');
   };
 
   const onUploadAttachments = useCallback(
-    (e) => {
+    (e: ChangeEvent<HTMLInputElement>) => {
       // TODO: Right now there's no way to upload files to the chat only.
       // When we add the place menu whcih will have an explicit button for uploading files,
       // should we make this attach button only upload to chat?
+      if (!e.target.files) return;
       for (const file of e.target.files) {
         scene.emit('add_media', file);
       }
@@ -110,7 +113,13 @@ export default function ChatSidebarContainer({
   );
 
   const onSelectEmoji = useCallback(
-    ({ emoji, pickerRemainedOpen }) => {
+    ({
+      emoji,
+      pickerRemainedOpen,
+    }: {
+      emoji: string;
+      pickerRemainedOpen: boolean;
+    }) => {
       setMessage((message) => message + emoji);
       // If the picker remained open, avoid selecting the input so that the
       // user can keep picking emojis.
@@ -170,9 +179,13 @@ export default function ChatSidebarContainer({
   return (
     <ChatSidebar onClose={onClose}>
       <ChatMessageList ref={listRef} onScroll={onScrollList}>
-        {/* {messageGroups.map(entry => {
-
-            })} */}
+        {messageGroups.map((entry) => {
+          const { id, systemMessage, type } = entry;
+          if (systemMessage) return <SystemMessage key={id} {...entry} />;
+          if (type === 'permission')
+            return <PermissionMessageGroup key={id} {...entry} />;
+          return <ChatMessageGroup key={id} {...entry} />;
+        })}
       </ChatMessageList>
       {!canTextChat && <PermissionNotification permission={'text_chat'} />}
       {!textChatEnabled && isMod && (
@@ -183,7 +196,7 @@ export default function ChatSidebarContainer({
         ref={inputRef}
         onKeyDown={onKeyDown}
         onChange={(e) => setMessage(e.target.value)}
-        placeholder={placeholder}
+        placeholder={''}
         value={message}
         isOverMaxLength={isOverMaxLength}
         warning={
@@ -198,9 +211,9 @@ export default function ChatSidebarContainer({
         }
         afterInput={
           <>
-            {!isMobile() && (
+            {/* {!isMobile() && (
               <EmojiPickerPopoverButton onSelectEmoji={onSelectEmoji} />
-            )}
+            )} */}
             {message.length === 0 && canSpawnMessages ? (
               <MessageAttachmentButton onChange={onUploadAttachments} />
             ) : (

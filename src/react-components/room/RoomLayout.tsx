@@ -59,7 +59,7 @@ export function RoomLayout({
     >
       {sidebar && (
         <div
-          className={`bg-red sidebar h-full overflow-hidden w-112.5 col-start-[sidebar] lg:fixed lg:top-0 lg:left-0 lg:bottom-0 lg:right-0 lg:m-0 lg:w-full lg:z-9 ${sidebarClassName}`}
+          className={`bg-red sidebar h-full overflow-hidden w-112.5 col-start-[sidebar] max-lg:fixed max-lg:top-0 max-lg:left-0 max-lg:bottom-0 max-lg:right-0 max-lg:m-0 max-lg:w-full max-lg:z-9 ${sidebarClassName}`}
         >
           {sidebar}
         </div>

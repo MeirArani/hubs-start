@@ -24,5 +24,5 @@ export function useMaintainScrollPosition(items: unknown[]) {
     }
   }, [items, scrolledToBottom]);
 
-  return [onScrollList, listRef, scrolledToBottom];
+  return [onScrollList, listRef, scrolledToBottom] as const;
 }

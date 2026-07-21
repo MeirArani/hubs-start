@@ -6,7 +6,6 @@ export interface SidebarProps {
   afterTitle?: ReactNode;
   children?: ReactNode;
   className?: string;
-  contentClassName?: string;
   disableOverflowScroll?: boolean;
 }
 
@@ -16,7 +15,6 @@ export default function Sidebar({
   afterTitle,
   children,
   className,
-  contentClassName,
   disableOverflowScroll,
 }: SidebarProps) {
   return (
@@ -31,7 +29,7 @@ export default function Sidebar({
         </div>
       )}
       <div
-        className={`absolute top-12 left-0 right-0 bottom-0 flex flex-1 flex-col ${disableOverflowScroll ? '' : 'overflow-y-auto'} ${contentClassName}`}
+        className={`absolute top-12 left-0 right-0 bottom-0 flex flex-1 flex-col ${disableOverflowScroll ? '' : 'overflow-y-auto'}`}
       >
         {children}
       </div>
