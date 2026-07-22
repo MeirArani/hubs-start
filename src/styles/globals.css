@@ -187,14 +187,14 @@
 
   --color-disabled-text: var(--color-text4);
   --color-disabled: var(--color-lightgrey);
-  --color-disabled-icon: var(--color-bg4);
+  --color-disabled-icon: var(--color-bg-gray);
 
   --color-radio-border: var(--color-border-primary);
   --color-radio: var(--color-basic);
   --color-radio-hover: var(--color-basic-hover);
   --color-radio-pressed: var(--color-basic-pressed);
 
-  --color-toggle-button: var(--color-bg4);
+  --color-toggle-button: var(--color-bg-gray);
 
   --color-input: var(--color-bg-primary);
   --color-input-icon: var(--color-text-secondary);
@@ -540,7 +540,7 @@ body::before {
 /* // TODO: Add the rest of the base typography styles */
 
 h5 {
-  font-size: var(--font-size-sm);
+  font-size: var(--text-sm);
 }
 
 label,
@@ -573,9 +573,9 @@ a {
 
 hr {
   position: relative;
-  width: 90%;
+  width: 95%;
   border: none;
-  border-bottom: 1px solid var(--color-border2);
+  border-bottom: 1px solid var(--color-border-secondary);
   margin: 16px 0;
 
   &:after {
@@ -584,7 +584,7 @@ hr {
     padding: 0 4px;
     position: relative;
     color: var(--color-text-primary);
-    font-size: var(--font-size-sm);
+    font-size: var(--text-sm);
     font-weight: var(--font-weight-bold);
     position: absolute;
     transform: translateY(-50%) translateX(-50%);

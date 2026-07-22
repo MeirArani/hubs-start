@@ -1,4 +1,4 @@
-import { useEffect, useReducer, type MouseEvent } from 'react';
+import { useContext, useEffect, useReducer, type MouseEvent } from 'react';
 // import '@/styles/sass/core/ui-root.module.scss';
 // import '@/styles/sass/style-utils.module.scss';
 
@@ -36,6 +36,8 @@ import EnterIcon from './icons/Enter.svg?react';
 import LeaveIcon from './icons/Leave.svg?react';
 import { InvitePopoverContainer } from './room/InvitePopoverContainer';
 import ChatSidebarContainer from './room/ChatSidebarContainer';
+import { Outlet, useNavigate } from '@tanstack/react-router';
+import { HubContext } from '#/routes/$hubId';
 
 const isMobileVR = false;
 const isMobile = false;
@@ -49,9 +51,6 @@ interface ConditionalSignIn {
 
 interface UIRootProps {
   showPreload?: boolean;
-  hub: Hub;
-  hubChannel: HubChannel;
-  scene: Scene;
   selectedObject?: object;
   onPreloadLoadClicked?: () => void;
   hubIsBound?: boolean;
@@ -110,7 +109,8 @@ const initUIState: UIState = {
 };
 
 type UITask =
-  | { type: 'updateWatching'; watching: boolean }
+  | { type: 'setWatching'; watching: boolean }
+  | { type: 'setEntering'; entering: boolean }
   | { type: 'setSidebar'; id: SidebarType | null }
   | {
       type: 'toggleSidebar';
@@ -120,8 +120,11 @@ type UITask =
 
 function handleUITask(state: UIState, task: UITask): UIState {
   switch (task.type) {
-    case 'updateWatching': {
+    case 'setWatching': {
       return { ...state, watching: task.watching };
+    }
+    case 'setEntering': {
+      return { ...state, entering: task.entering };
     }
     case 'setSidebar': {
       return {
@@ -145,7 +148,9 @@ function handleUITask(state: UIState, task: UITask): UIState {
 
 // const rootStyles = `ui ui-root ${this.isInModalOrOverlay() && 'in-modal-or-overlay'} ${isGhost} ${hide}`
 export default function UIRoot(props: UIRootProps) {
+  const { hub, hubChannel, scene } = useContext(HubContext);
   useAccessibleOutlineStyle();
+  const navigate = useNavigate();
   const breakpoint = useCssBreakpoints();
   // const { voice_chat: canVoiceChat } = usePermissions();
 
@@ -154,9 +159,9 @@ export default function UIRoot(props: UIRootProps) {
     if (el) {
       el.classList.add('loaded');
 
-      const sceneEl = props.scene;
+      const sceneEl = scene;
 
-      sceneEl.classList.add('scene');
+      sceneEl?.classList.add('scene');
 
       // Remove the preload overlay after the animation has finished.
       const timeout = setTimeout(() => {
@@ -165,28 +170,27 @@ export default function UIRoot(props: UIRootProps) {
 
       return () => {
         clearTimeout(timeout);
-        sceneEl.classList.remove('scene');
+        sceneEl?.classList.remove('scene');
       };
     }
-  }, [props.scene]);
+  }, [scene]);
 
   const [state, dispatchState] = useReducer(handleUITask, initUIState);
   const currentStreamer = getCurrentStreamer();
 
   const renderEntryStartPanel = () => {
-    // const waitingOnAudio = useSelector(store, (store) => store.waitingOnAudio);
-    // const { hasAcceptedProfile, hasChangedNameOrPronouns } =
-    //   store.state.activity;
-    // const promptForNameAndAvatarBeforeEntry = props.hubIsBound
-    //   ? !hasAcceptedProfile
-    //   : !hasChangedNameOrPronouns;
-    // const showJoinRoom = waitingOnAudio && !props.entryDisallowed;
+    const waitingOnAudio = useSelector(store, (store) => store.waitingOnAudio);
+    const { hasAcceptedProfile, hasChangedNameOrPronouns } =
+      store.state.activity;
+    const promptForNameAndAvatarBeforeEntry = props.hubIsBound
+      ? !hasAcceptedProfile
+      : !hasChangedNameOrPronouns;
+    const showJoinRoom = waitingOnAudio && !props.entryDisallowed;
 
     return (
       <>
         <RoomEntryModal
-          roomName={props.hub.name}
-          //   showJoinRoom={showJoinRoom}
+          roomName={hub.name || ''}
           showJoinRoom={true}
           //   showEnterOnDevice={
           //     !waitingOnAudio && !props.entryDisallowed && !isMobileVR
@@ -196,7 +200,7 @@ export default function UIRoot(props: UIRootProps) {
           //   showSpectate={!waitingOnAudio}
           showSpectate={true}
           onSpectate={() => {
-            dispatchState({ type: 'updateWatching', watching: true });
+            dispatchState({ type: 'setWatching', watching: true });
           }}
           showRoomSettings={false}
           //   showRoomSettings={props.hubChannel.canOrWillIfCreator('update_hub')}
@@ -209,28 +213,24 @@ export default function UIRoot(props: UIRootProps) {
           //   }}
           entering={state.entering}
           onEnteringCanceled={() => {
-            props.hubChannel.sendEnteringCanceledEvent();
+            hubChannel?.sendEnteringCanceledEvent();
           }}
           onJoinRoom={() => {
-            // if (isLockedDownDemo) {
-            //   if (this.props.forcedVREntryType?.startsWith("vr")) {
-            //     this.setState({ enterInVR: true }, this.onAudioReadyButton);
-            //     return;
-            //   }
-            //   return this.onAudioReadyButton();
-            // }
-            // if (promptForNameAndAvatarBeforeEntry || !forcedVREntryType) {
-            //   setEntering(true)
-            //   // this.props.hubChannel.sendEnteringEvent();
-            //    if (promptForNameAndAvatarBeforeEntry) {
-            //     this.pushHistoryState("entry_step", "profile");
-            //   } else {
-            //     this.onRequestMicPermission();
-            //     this.pushHistoryState("entry_step", "audio");
-            //   }
-            // } else {
-            //   this.handleForceEntry();
-            // }
+            if (promptForNameAndAvatarBeforeEntry || !props.forcedVREntryType) {
+              dispatchState({ type: 'setEntering', entering: true });
+              hubChannel?.sendEnteringEvent();
+              if (promptForNameAndAvatarBeforeEntry) {
+                // this.pushHistoryState('entry_step', 'profile');
+                navigate({
+                  to: '.',
+                });
+              } else {
+                this.onRequestMicPermission();
+                this.pushHistoryState('entry_step', 'audio');
+              }
+            } else {
+              this.handleForceEntry();
+            }
           }}
         />
       </>
@@ -246,89 +246,24 @@ export default function UIRoot(props: UIRootProps) {
       <MoreMenuContextProvider>
         <AudioContext value={state.audioContext || {}}>
           <div className="w-full h-full top-0 left-0 absolute pointer-events-none ui-root">
-            {props.showPreload && props.hub && (
+            {props.showPreload && hub && (
               <PreloadOverlay
-                hubName={props.hub.name}
-                hubScene={props.hub.scene}
-                baseUrl={hubUrl(props.hub.hub_id)}
+                hubName={hub.name}
+                hubScene={hub.scene}
+                baseUrl={hubUrl(hub.hub_id)}
                 onLoadClicked={props.onPreloadLoadClicked}
               />
             )}
             {/* {!state.dialog && <AvatarEditor />} */}
             {/* {!state.dialog && showMediaBrowser && (<MediaBrowserContainer/>)} */}
-            {props.hub && (
+            {hub && (
               <RoomLayout
-                scene={props.scene}
+                scene={scene!}
                 objectFocused={!!props.selectedObject}
                 streaming={state.isStreaming}
                 viewport={
                   <>
-                    {renderEntryStartPanel()}
-                    {/* {state.dialog && renderEntryFlow ? entryDialog : undefined}
-                    {props.selectedObject && <CompactMoreMenuButton />}
-                    {!props.selectedObject ||
-                      (breakpoint !== 'sm' && breakpoint !== 'md' && (
-                        <ContentMenu>
-                          {(state.entered || state.watching) &&
-                            !isLockedDownDemoRoom() && (
-                              <ObjectMenuButton
-                                active={state.sidebarId === 'objects'}
-                                onClick={() =>
-                                  dispatchState({
-                                    type: 'toggleSidebar',
-                                    id: 'objects',
-                                  })
-                                }
-                              />
-                            )}
-                          <PeopleMenuButton
-                            active={state.sidebarId === 'people'}
-                            disabled={isLockedDownDemoRoom()}
-                            onClick={
-                              !isLockedDownDemoRoom()
-                                ? () =>
-                                    dispatchState({
-                                      type: 'toggleSidebar',
-                                      id: 'people',
-                                    })
-                                : () => {}
-                            }
-                            presencecount={state.presenceCount}
-                          />
-                          {qsTruthy('ecsDebug') && (
-                            <ECSDebugMenuButton
-                              active={state.sidebarId === 'ecs-debug'}
-                              onClick={() =>
-                                dispatchState({
-                                  type: 'toggleSidebar',
-                                  id: 'ecs-debug',
-                                })
-                              }
-                            />
-                          )}
-                        </ContentMenu>
-                      ))}
-                    {!state.entered &&
-                      !state.isStreaming &&
-                      !isMobile &&
-                      currentStreamer?.streamerName && (
-                        <SpectatingLabel name={currentStreamer?.streamerName} />
-                      )}
-                    {props.activeObject && (
-                      <ObjectMenuContainer
-                        hubChannel={props.hubChannel}
-                        scene={props.scene}
-                        onOpenProfile={() =>
-                          dispatchState({ type: 'setSidebar', id: 'profile' })
-                        }
-                        onGoToObject={() => {
-                          if (breakpoint === 'sm') {
-                            dispatchState({ type: 'setSidebar', id: null });
-                          }
-                        }}
-                      />
-                    )}
-                    {state.sidebarId !== 'chat' && props.hub && <PresenceLog />} */}
+                    <Outlet />
                   </>
                 }
                 sidebar={
@@ -340,9 +275,9 @@ export default function UIRoot(props: UIRootProps) {
                           occupantCount={occupantCount()}
                           canSpawnMessages={
                             state.entered &&
-                            props.hubChannel.can('spawn_and_move_media')
+                            hubChannel?.can('spawn_and_move_media')
                           }
-                          scene={props.scene}
+                          scene={scene!}
                           onClose={() => {
                             dispatchState({ type: 'setSidebar', id: null });
                           }}
@@ -357,9 +292,9 @@ export default function UIRoot(props: UIRootProps) {
                 toolbarLeft={
                   <>
                     <InvitePopoverContainer
-                      hub={props.hub}
-                      hubChannel={props.hubChannel}
-                      scene={props.scene}
+                      hub={hub}
+                      hubChannel={hubChannel}
+                      scene={scene!}
                     />
                   </>
                 }
@@ -411,3 +346,71 @@ export default function UIRoot(props: UIRootProps) {
     </>
   );
 }
+
+// {/* {renderEntryStartPanel()} */}
+//   {/* {state.dialog && renderEntryFlow ? entryDialog : undefined}
+//   {props.selectedObject && <CompactMoreMenuButton />}
+//   {!props.selectedObject ||
+//     (breakpoint !== 'sm' && breakpoint !== 'md' && (
+//       <ContentMenu>
+//         {(state.entered || state.watching) &&
+//           !isLockedDownDemoRoom() && (
+//             <ObjectMenuButton
+//               active={state.sidebarId === 'objects'}
+//               onClick={() =>
+//                 dispatchState({
+//                   type: 'toggleSidebar',
+//                   id: 'objects',
+//                 })
+//               }
+//             />
+//           )}
+//         <PeopleMenuButton
+//           active={state.sidebarId === 'people'}
+//           disabled={isLockedDownDemoRoom()}
+//           onClick={
+//             !isLockedDownDemoRoom()
+//               ? () =>
+//                   dispatchState({
+//                     type: 'toggleSidebar',
+//                     id: 'people',
+//                   })
+//               : () => {}
+//           }
+//           presencecount={state.presenceCount}
+//         />
+//         {qsTruthy('ecsDebug') && (
+//           <ECSDebugMenuButton
+//             active={state.sidebarId === 'ecs-debug'}
+//             onClick={() =>
+//               dispatchState({
+//                 type: 'toggleSidebar',
+//                 id: 'ecs-debug',
+//               })
+//             }
+//           />
+//         )}
+//       </ContentMenu>
+//     ))}
+//   {!state.entered &&
+//     !state.isStreaming &&
+//     !isMobile &&
+//     currentStreamer?.streamerName && (
+//       <SpectatingLabel name={currentStreamer?.streamerName} />
+//     )}
+//   {props.activeObject && (
+//     <ObjectMenuContainer
+//       hubChannel={props.hubChannel}
+//       scene={props.scene}
+//       onOpenProfile={() =>
+//         dispatchState({ type: 'setSidebar', id: 'profile' })
+//       }
+//       onGoToObject={() => {
+//         if (breakpoint === 'sm') {
+//           dispatchState({ type: 'setSidebar', id: null });
+//         }
+//       }}
+//     />
+//   )}
+//   {state.sidebarId !== 'chat' && props.hub && <PresenceLog />} */}
+// </>

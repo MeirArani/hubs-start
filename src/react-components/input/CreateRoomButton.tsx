@@ -11,10 +11,10 @@ export default function CreateRoomButton() {
       onClick={async (e) => {
         e.preventDefault();
         const hub = await createNewHub();
-        const { hubId, hubName } = hub;
+        const { hubId } = hub;
         navigate({
-          to: '/$hubId/$slug',
-          params: { hubId, slug: hubName.replaceAll(' ', '-').toLowerCase() },
+          to: '/$hubId/',
+          params: { hubId },
         });
       }}
     >

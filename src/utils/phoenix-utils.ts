@@ -18,13 +18,13 @@ export function isLocalClient() {
 export function hubUrl(
   hubId?: string,
   extraParams?: Record<string, string>,
-  slug?: string,
+  // slug?: string,
   waypoint?: string,
 ) {
-  const routeApi = getRouteApi('/$hubId/$slug');
+  const routeApi = getRouteApi('/$hubId');
   hubId = hubId || routeApi.useParams().hubId;
 
-  const url = new URL(`/${hubId}${slug ? `/${slug}` : ''}`, location.href);
+  const url = new URL(`/${hubId}`, location.href);
 
   for (const key in extraParams) {
     url.searchParams.set(key, extraParams[key]);
@@ -35,7 +35,8 @@ export function hubUrl(
   return url;
 }
 
-const resolverLink = document.createElement('a');
+// REIMP
+// const resolverLink = document.createElement('a');
 type ReticulumMeta = {
   version: string;
   pool: string;
@@ -53,8 +54,9 @@ export function getReticulumFetchUrl(
   if (host || hasReticulumServer()) {
     return `https://${host || configs.state.reticulumServer}${port ? `:${port}` : ''}${path}`;
   } else if (absolute) {
-    resolverLink.href = path;
-    return resolverLink.href;
+    // resolverLink.href = path;
+    // return resolverLink.href;
+    return '';
   } else {
     return path;
   }

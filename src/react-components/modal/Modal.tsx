@@ -24,7 +24,7 @@ export function Modal({
 }: ModalProps) {
   return (
     <div
-      className={`relative flex flex-col h-max bg-bg-primary border border-solid border-border-primary rounded-lg m-6 w-full max-w-115 ${!disableFullscreen ? 'lg:fixed lg:top-0 lg:left-0 lg:right-0 lg:bottom-0 lg:border-0 lg:rounded-none lg:m-0 lg:w-full lg:h-full lg:max-w-none' : ''} ${className}`}
+      className={`relative flex flex-col h-max bg-bg-primary border border-solid border-border-primary rounded-lg m-6 w-full max-w-115 ${!disableFullscreen ? 'max-lg:fixed max-lg:top-0 max-lg:left-0 max-lg:right-0 max-lg:bottom-0 max-lg:border-0 max-lg:rounded-none max-lg:m-0 max-lg:w-full max-lg:h-full max-lg:max-w-none' : ''} ${className}`}
     >
       {(title || beforeTitle || afterTitle) && (
         <div className="flex h-12 border-b border-solid border-b-border-primary items-center justify-center">

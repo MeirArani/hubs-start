@@ -10,13 +10,20 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SigninRouteImport } from './routes/signin'
+import { Route as HubIdRouteImport } from './routes/$hubId'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ApiHubsRouteImport } from './routes/api/hubs'
-import { Route as HubIdSlugRouteImport } from './routes/$hubId.$slug'
+import { Route as HubIdProfileRouteImport } from './routes/$hubId.profile'
+import { Route as HubIdEntryRouteImport } from './routes/$hubId.entry'
 
 const SigninRoute = SigninRouteImport.update({
   id: '/signin',
   path: '/signin',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HubIdRoute = HubIdRouteImport.update({
+  id: '/$hubId',
+  path: '/$hubId',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -29,43 +36,73 @@ const ApiHubsRoute = ApiHubsRouteImport.update({
   path: '/api/hubs',
   getParentRoute: () => rootRouteImport,
 } as any)
-const HubIdSlugRoute = HubIdSlugRouteImport.update({
-  id: '/$hubId/$slug',
-  path: '/$hubId/$slug',
-  getParentRoute: () => rootRouteImport,
+const HubIdProfileRoute = HubIdProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => HubIdRoute,
+} as any)
+const HubIdEntryRoute = HubIdEntryRouteImport.update({
+  id: '/entry',
+  path: '/entry',
+  getParentRoute: () => HubIdRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/$hubId': typeof HubIdRouteWithChildren
   '/signin': typeof SigninRoute
-  '/$hubId/$slug': typeof HubIdSlugRoute
+  '/$hubId/entry': typeof HubIdEntryRoute
+  '/$hubId/profile': typeof HubIdProfileRoute
   '/api/hubs': typeof ApiHubsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/$hubId': typeof HubIdRouteWithChildren
   '/signin': typeof SigninRoute
-  '/$hubId/$slug': typeof HubIdSlugRoute
+  '/$hubId/entry': typeof HubIdEntryRoute
+  '/$hubId/profile': typeof HubIdProfileRoute
   '/api/hubs': typeof ApiHubsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/$hubId': typeof HubIdRouteWithChildren
   '/signin': typeof SigninRoute
-  '/$hubId/$slug': typeof HubIdSlugRoute
+  '/$hubId/entry': typeof HubIdEntryRoute
+  '/$hubId/profile': typeof HubIdProfileRoute
   '/api/hubs': typeof ApiHubsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/signin' | '/$hubId/$slug' | '/api/hubs'
+  fullPaths:
+    | '/'
+    | '/$hubId'
+    | '/signin'
+    | '/$hubId/entry'
+    | '/$hubId/profile'
+    | '/api/hubs'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/signin' | '/$hubId/$slug' | '/api/hubs'
-  id: '__root__' | '/' | '/signin' | '/$hubId/$slug' | '/api/hubs'
+  to:
+    | '/'
+    | '/$hubId'
+    | '/signin'
+    | '/$hubId/entry'
+    | '/$hubId/profile'
+    | '/api/hubs'
+  id:
+    | '__root__'
+    | '/'
+    | '/$hubId'
+    | '/signin'
+    | '/$hubId/entry'
+    | '/$hubId/profile'
+    | '/api/hubs'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  HubIdRoute: typeof HubIdRouteWithChildren
   SigninRoute: typeof SigninRoute
-  HubIdSlugRoute: typeof HubIdSlugRoute
   ApiHubsRoute: typeof ApiHubsRoute
 }
 
@@ -76,6 +113,13 @@ declare module '@tanstack/react-router' {
       path: '/signin'
       fullPath: '/signin'
       preLoaderRoute: typeof SigninRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/$hubId': {
+      id: '/$hubId'
+      path: '/$hubId'
+      fullPath: '/$hubId'
+      preLoaderRoute: typeof HubIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -92,20 +136,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiHubsRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/$hubId/$slug': {
-      id: '/$hubId/$slug'
-      path: '/$hubId/$slug'
-      fullPath: '/$hubId/$slug'
-      preLoaderRoute: typeof HubIdSlugRouteImport
-      parentRoute: typeof rootRouteImport
+    '/$hubId/profile': {
+      id: '/$hubId/profile'
+      path: '/profile'
+      fullPath: '/$hubId/profile'
+      preLoaderRoute: typeof HubIdProfileRouteImport
+      parentRoute: typeof HubIdRoute
+    }
+    '/$hubId/entry': {
+      id: '/$hubId/entry'
+      path: '/entry'
+      fullPath: '/$hubId/entry'
+      preLoaderRoute: typeof HubIdEntryRouteImport
+      parentRoute: typeof HubIdRoute
     }
   }
 }
 
+interface HubIdRouteChildren {
+  HubIdEntryRoute: typeof HubIdEntryRoute
+  HubIdProfileRoute: typeof HubIdProfileRoute
+}
+
+const HubIdRouteChildren: HubIdRouteChildren = {
+  HubIdEntryRoute: HubIdEntryRoute,
+  HubIdProfileRoute: HubIdProfileRoute,
+}
+
+const HubIdRouteWithChildren = HubIdRoute._addFileChildren(HubIdRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  HubIdRoute: HubIdRouteWithChildren,
   SigninRoute: SigninRoute,
-  HubIdSlugRoute: HubIdSlugRoute,
   ApiHubsRoute: ApiHubsRoute,
 }
 export const routeTree = rootRouteImport

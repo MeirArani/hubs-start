@@ -40,7 +40,7 @@ const InputField = memo(function InputField({
       {error ? (
         <small className="mt-2 text-error self-start text-sm">{error}</small>
       ) : description ? (
-        <small className="mt-8 text-text-secondary text-sm">
+        <small className="mt-2 text-text-secondary text-sm">
           {description}
         </small>
       ) : undefined}

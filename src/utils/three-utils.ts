@@ -32,7 +32,7 @@ import {
 import { MediaVideo } from '#/components/bitecs/component-defs';
 import { Text } from 'troika-three-text';
 import { forEachMaterial } from './material-utils';
-import { isMobile } from './is-mobile';
+import { isMobile } from './is-mobile.client';
 
 const tempVector3 = new Vector3();
 const tempQuaternion = new Quaternion();

@@ -8,7 +8,7 @@ import { Column } from '../layout/Column';
 import { canShare } from '#/utils/share';
 import Button from '../input/Button';
 import ShareIcon from '../icons/Share.svg?react';
-import { isMobile } from '#/utils/is-mobile';
+import { isMobile } from '#/utils/is-mobile.client';
 import { InviteLinkInputField } from './InviteLinkInputField';
 import { CopyableTextInputField } from '../input/CopyableTextInputField';
 import { getLocale } from '#/paraglide/runtime';

@@ -1,5 +1,5 @@
 import { store } from '#/store/store';
-import { isIOS } from './is-mobile';
+import { isIOS } from './is-mobile.client';
 
 const isNaturalOrientation = () => {
   const angle =

@@ -20,7 +20,7 @@ export type IconButtonOwnProps<T extends IconButtonAllowedElements> =
 export type IconButtonProps<T extends IconButtonAllowedElements = 'button'> =
   PolymorphicProps<IconButtonOwnProps<T>, T, IconButtonAllowedElements>;
 
-export default function IconButtonInner<T extends IconButtonAllowedElements>({
+export default function IconButton<T extends IconButtonAllowedElements>({
   as = IconButtonDefaultElement,
   className,
   compactSm = false,
@@ -29,12 +29,18 @@ export default function IconButtonInner<T extends IconButtonAllowedElements>({
   ref,
   ...rest
 }: IconButtonProps<T>) {
+  const styles = {
+    compactSm: compactSm
+      ? 'max-lg:flex-col max-lg: justify-center max-lg:*:mr-0 max-lg:*:mb-1 max-lg:last:mb-0'
+      : '',
+    lg: lg ? 'lg:text-sm lg:[&>svg]:w-6 lg:[&>svg]:h-6' : '',
+  } as const;
   return createElement(
     as,
     {
       ...rest,
       ref,
-      className: `icon-button ${compactSm && 'compact-sm'} ${lg && 'lg'} ${className}`,
+      className: `group flex items-center gb-transparent border-0 border-transparent text-xs font-bold cursor-pointer *:mr-1 *:last:mr-0 hover:text-primary-hover active:text-primary-pressed focus:outline-none disabled:text-disabled-icon cursor-not-allowed ${compactSm} ${lg} ${className}`,
     },
     children,
   );

@@ -39,10 +39,10 @@ export type Hub = {
   lobby_count: number;
   member_count: number;
   member_permissions: Record<Permission, boolean>;
-  name: string;
+  name?: string;
   port: number;
   room_size: number;
-  slug: string;
+  slug?: string;
   topics: {
     assets: { asset_type: string; src: string }[];
     janus_room_id: number;

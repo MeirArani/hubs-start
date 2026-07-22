@@ -13,7 +13,7 @@ import { store } from '#/store/store';
 import {
   getMaxResolutionWidth,
   getMaxResolutionHeight,
-} from '#/utils/screen-orientation';
+} from '#/utils/screen-orientation.client';
 import { useSelector } from '@tanstack/react-store';
 import { useOrientation } from '@uidotdev/usehooks';
 import type { PerspectiveCamera } from 'three';

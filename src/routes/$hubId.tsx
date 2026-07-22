@@ -6,13 +6,14 @@ import HubChannel from '#/core/hub-channel';
 import type { Scene } from 'aframe';
 import { DummyPermissions } from '#/utils/dummy';
 import { App } from '#/core/app';
+import { createContext } from 'react';
 
 interface HubSearchParams {
-  hub_invite_id: string;
-  embed_token: string;
+  hub_invite_id?: string;
+  embed_token?: string;
 }
 
-export const Route = createFileRoute('/$hubId/$slug')({
+export const Route = createFileRoute('/$hubId')({
   component: RouteComponent,
   ssr: false,
   validateSearch: (params: Record<string, unknown>): HubSearchParams => {
@@ -34,49 +35,68 @@ export const Route = createFileRoute('/$hubId/$slug')({
 //   </Canvas>
 // )
 
+const dummyHub: Hub = {
+  allow_promotion: false,
+  description: 'Dummy Hub for testing purposes only!!',
+  entry_code: 0,
+  entry_mode: 'allow',
+  host: 'localhost',
+  hub_id: 'dummy',
+  lobby_count: 20,
+  member_count: 10,
+  member_permissions: DummyPermissions,
+  port: 444,
+  room_size: 20,
+  topics: [],
+  turn: { enabled: false },
+  user_data: null,
+  embed_token: 'testToken',
+};
+
+interface HubContextParams {
+  hub: Hub;
+  hubChannel: HubChannel;
+  scene: Scene | null;
+}
+export const HubContext = createContext<HubContextParams>({
+  hub: dummyHub,
+  hubChannel: new HubChannel('test'),
+  scene: null,
+});
+
 function RouteComponent() {
   window.APP = new App();
 
-  // const t = Route.useParams()
-  // const canvas = useRef(null)
-  const params = Route.useParams();
   const hub: Hub = {
     allow_promotion: false,
     description: 'Dummy Hub for testing purposes only!!',
     entry_code: 0,
     entry_mode: 'allow',
     host: 'localhost',
-    hub_id: params.hubId,
+    hub_id: Route.useParams().hubId,
     lobby_count: 20,
     member_count: 10,
     member_permissions: DummyPermissions,
-    name: params.slug
-      .split('-')
-      .map((word) => word[0].toUpperCase() + word.slice(1))
-      .join(' '),
     port: 444,
     room_size: 20,
-    slug: 'slug',
     topics: [],
     turn: { enabled: false },
     user_data: null,
     embed_token: 'testToken',
   };
-  console.log(hub);
+
   const scene = document.querySelector<Scene>('a-scene');
   return (
     <ThemeProvider>
-      <div className="support-root"></div>
-      <div id="ui-root">
-        <ThemeProvider>
-          <UIRoot
-            hub={hub}
-            hubChannel={new HubChannel('test')}
-            scene={scene!}
-          />
-        </ThemeProvider>
-      </div>
-      <div id="canvas-container"></div>
+      <HubContext
+        value={{ hub, hubChannel: new HubChannel('test'), scene: scene! }}
+      >
+        <div className="support-root"></div>
+        <div id="ui-root">
+          <UIRoot />
+        </div>
+        <div id="canvas-container"></div>
+      </HubContext>
     </ThemeProvider>
   );
 }

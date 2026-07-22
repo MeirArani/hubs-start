@@ -2,7 +2,7 @@ import type { MyCameraTool } from '#/components/bitecs/component-defs';
 import { shouldUseNewLoader, anyEntityWith } from '#/utils/bit-utils';
 import { hackyMobileSafariTest } from '#/utils/detect-touchscreen';
 import { isLockedDownDemoRoom } from '#/utils/hubs';
-import { isMobileVR } from '#/utils/is-mobile';
+import { isMobileVR } from '#/utils/is-mobile.client';
 import type { MediaDevicesEvents } from '#/utils/media-devices';
 import { qsTruthy } from '#/utils/qs_truthy';
 import type { Entity, DetailEvent, Scene } from 'aframe';
