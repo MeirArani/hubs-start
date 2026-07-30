@@ -22,6 +22,8 @@ export interface TextInputProps extends React.ComponentPropsWithoutRef<'input'> 
   onBlur?: FocusEventHandler;
   ref?: Ref<HTMLInputElement>;
   textInputStyles?: string;
+  maxRows?: number;
+  minRows?: number;
   autosize?: boolean;
 }
 
@@ -70,8 +72,8 @@ const TextInput = memo(function TextInput({
             onFocus={handleFocus}
             onBlur={handleBlur}
             // TODO: FIX
-            // {...rest}
-            // ref={re}
+            {...rest}
+            ref={ref}
           />
         ) : (
           <input

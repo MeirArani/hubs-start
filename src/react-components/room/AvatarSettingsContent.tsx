@@ -13,6 +13,7 @@ import Button from '../input/Button';
 import { useSelector } from '@tanstack/react-store';
 import { store } from '#/store/store';
 import { preventOverflow } from '@popperjs/core';
+import { getRouteApi } from '@tanstack/react-router';
 
 export interface AvatarSettingsContentProps extends Omit<
   ColumnProps,
@@ -29,6 +30,8 @@ export function AvatarSettingsContent({
   disableDisplayNameInput,
   avatarPreview,
 }: AvatarSettingsContentProps) {
+  const route = getRouteApi('/$hubId/profile');
+  const navigate = route.useNavigate();
   const displayNamePattern = '^[A-Za-z0-9_~\\s\\-]{3,32}$';
   const pronounsPattern = '^([a-zA-Z]{1,32}[\\/, ]\\s*){0,4}[a-zA-Z]{1,32}$';
   const nameInputRef = useRef<HTMLInputElement>(null);
@@ -112,7 +115,13 @@ export function AvatarSettingsContent({
           {m['avatar-settings-content.change-avatar-button']()}
         </Button>
       </div>
-      <Button preset="accept" type="submit">
+      <Button
+        preset="accept"
+        type="submit"
+        onClick={() => {
+          navigate({ to: '/$hubId/audio' });
+        }}
+      >
         {m['button.accept']()}
       </Button>
     </Column>

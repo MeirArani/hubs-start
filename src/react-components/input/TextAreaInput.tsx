@@ -1,3 +1,4 @@
+import type { HTMLProps } from 'react';
 import type { TextInputProps } from './TextInput';
 
 import TextInput from './TextInput';

@@ -2,12 +2,10 @@
 import { HeadContent, Scripts, createRootRoute } from '@tanstack/react-router';
 import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools';
 import { TanStackDevtools } from '@tanstack/react-devtools';
-// import appCss from #/styles/'
-import appCss from '#/styles/globals.css?url';
-// import { App } from '#/core/app';
-import faCSS from '@fortawesome/fontawesome-svg-core/styles.css?url';
 import { config } from '@fortawesome/fontawesome-svg-core';
 config.autoAddCss = false;
+import faCSS from '@fortawesome/fontawesome-svg-core/styles.css?url';
+import appCss from '#/styles/styles.css?url';
 
 export const Route = createRootRoute({
   head: () => ({
@@ -43,7 +41,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
       <head>
         <HeadContent />
       </head>
-      <body data-theme="light">
+      <body data-theme="light" className="font-poppins">
         {children}
         <TanStackDevtools
           config={{

@@ -40,7 +40,7 @@ export default function IconButton<T extends IconButtonAllowedElements>({
     {
       ...rest,
       ref,
-      className: `group flex items-center gb-transparent border-0 border-transparent text-xs font-bold cursor-pointer *:mr-1 *:last:mr-0 hover:text-primary-hover active:text-primary-pressed focus:outline-none disabled:text-disabled-icon cursor-not-allowed ${compactSm} ${lg} ${className}`,
+      className: `group items-center gb-transparent border-0 border-transparent text-xs font-bold cursor-pointer *:mr-1 *:last:mr-0 hover:text-primary-hover active:text-primary-pressed focus:outline-none disabled:text-disabled-icon cursor-not-allowed ${compactSm} ${lg} ${className}`,
     },
     children,
   );

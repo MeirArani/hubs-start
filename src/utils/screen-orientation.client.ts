@@ -1,4 +1,5 @@
 import { store } from '#/store/store';
+import { createClientOnlyFn } from '@tanstack/react-start';
 import { isIOS } from './is-mobile.client';
 
 const isNaturalOrientation = () => {
@@ -32,9 +33,9 @@ const getScreenHeight = () => {
 // (screen.width * window.devicePixelRatio) seems to be too huge and
 // can cause bad performance impact. So use CSS pixels screen width
 // (screen.width) by default for now.
-export const getDefaultMaxResolutionWidth = () => {
+export const getDefaultMaxResolutionWidth = createClientOnlyFn(() => {
   return getScreenWidth();
-};
+});
 
 // See the comment above
 export const getDefaultMaxResolutionHeight = () => {

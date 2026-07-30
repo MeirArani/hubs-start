@@ -53,6 +53,17 @@ export class App {
     },
   });
 
+  member_permissions = {
+    voice_chat: true,
+    text_chat: true,
+    spawn_and_move_media: true,
+    spawn_camera: true,
+    pin_objects: true,
+    spawn_drawing: true,
+    spawn_emoji: true,
+    fly: true,
+  };
+
   str2sid = new Map<string | null, number>([[null, 0]]);
   sid2str = new Map<number, string | null>([[0, null]]);
   nextSid = 1;

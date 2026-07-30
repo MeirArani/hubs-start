@@ -13,6 +13,7 @@ import EnterIcon from '#/react-components/icons/Enter.svg?react';
 import VRIcon from '#/react-components/icons/VR.svg?react';
 import ShowIcon from '#/react-components/icons/Show.svg?react';
 import SettingsIcon from '#/react-components/icons/Settings.svg?react';
+import { HubUIContext } from '#/react-components/UIRoot';
 
 export const Route = createFileRoute('/$hubId/entry')({
   component: RoomEntryContainer,
@@ -74,7 +75,7 @@ function RoomEntryContainer({
     }
   };
 
-  const onRoomSettings = () => {};
+  const { dispatchState } = useContext(HubUIContext);
 
   return (
     <Modal disableFullscreen>
@@ -92,13 +93,14 @@ function RoomEntryContainer({
         </div>
         <Column center gap className="mx-4 lg:mx-2">
           {showJoinRoom && (
-            <Button preset="accent4" onClick={onJoinRoom}>
+            <Button leftAligned preset="accent4" onClick={onJoinRoom}>
               <EnterIcon className="*:stroke-white" />
               <span>{m['room-entry-modal.join-room-button']()}</span>
             </Button>
           )}
           {showEnterOnDevice && (
             <Button
+              leftAligned
               preset="accent5"
               onClick={() => {
                 console.log('Entering on Device...');
@@ -110,6 +112,7 @@ function RoomEntryContainer({
           )}
           {showSpectate && (
             <Button
+              leftAligned
               preset="accent2"
               onClick={() => {
                 console.log('Spectating');
@@ -123,9 +126,16 @@ function RoomEntryContainer({
             <>
               <hr className="max-lg:hidden!" />
               <Button
+                leftAligned
                 preset="transparent"
                 className="max-lg:hidden!"
-                onClick={onRoomSettings}
+                onClick={() => {
+                  dispatchState &&
+                    dispatchState({
+                      type: 'toggleSidebar',
+                      id: 'room-settings',
+                    });
+                }}
               >
                 <SettingsIcon className="shrink-0" />
                 <span>{m['room-entry-modal.room-settings-button']()}</span>

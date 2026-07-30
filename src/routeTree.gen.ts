@@ -15,6 +15,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as ApiHubsRouteImport } from './routes/api/hubs'
 import { Route as HubIdProfileRouteImport } from './routes/$hubId.profile'
 import { Route as HubIdEntryRouteImport } from './routes/$hubId.entry'
+import { Route as HubIdAudioRouteImport } from './routes/$hubId.audio'
 
 const SigninRoute = SigninRouteImport.update({
   id: '/signin',
@@ -46,11 +47,17 @@ const HubIdEntryRoute = HubIdEntryRouteImport.update({
   path: '/entry',
   getParentRoute: () => HubIdRoute,
 } as any)
+const HubIdAudioRoute = HubIdAudioRouteImport.update({
+  id: '/audio',
+  path: '/audio',
+  getParentRoute: () => HubIdRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/$hubId': typeof HubIdRouteWithChildren
   '/signin': typeof SigninRoute
+  '/$hubId/audio': typeof HubIdAudioRoute
   '/$hubId/entry': typeof HubIdEntryRoute
   '/$hubId/profile': typeof HubIdProfileRoute
   '/api/hubs': typeof ApiHubsRoute
@@ -59,6 +66,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/$hubId': typeof HubIdRouteWithChildren
   '/signin': typeof SigninRoute
+  '/$hubId/audio': typeof HubIdAudioRoute
   '/$hubId/entry': typeof HubIdEntryRoute
   '/$hubId/profile': typeof HubIdProfileRoute
   '/api/hubs': typeof ApiHubsRoute
@@ -68,6 +76,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/$hubId': typeof HubIdRouteWithChildren
   '/signin': typeof SigninRoute
+  '/$hubId/audio': typeof HubIdAudioRoute
   '/$hubId/entry': typeof HubIdEntryRoute
   '/$hubId/profile': typeof HubIdProfileRoute
   '/api/hubs': typeof ApiHubsRoute
@@ -78,6 +87,7 @@ export interface FileRouteTypes {
     | '/'
     | '/$hubId'
     | '/signin'
+    | '/$hubId/audio'
     | '/$hubId/entry'
     | '/$hubId/profile'
     | '/api/hubs'
@@ -86,6 +96,7 @@ export interface FileRouteTypes {
     | '/'
     | '/$hubId'
     | '/signin'
+    | '/$hubId/audio'
     | '/$hubId/entry'
     | '/$hubId/profile'
     | '/api/hubs'
@@ -94,6 +105,7 @@ export interface FileRouteTypes {
     | '/'
     | '/$hubId'
     | '/signin'
+    | '/$hubId/audio'
     | '/$hubId/entry'
     | '/$hubId/profile'
     | '/api/hubs'
@@ -150,15 +162,24 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof HubIdEntryRouteImport
       parentRoute: typeof HubIdRoute
     }
+    '/$hubId/audio': {
+      id: '/$hubId/audio'
+      path: '/audio'
+      fullPath: '/$hubId/audio'
+      preLoaderRoute: typeof HubIdAudioRouteImport
+      parentRoute: typeof HubIdRoute
+    }
   }
 }
 
 interface HubIdRouteChildren {
+  HubIdAudioRoute: typeof HubIdAudioRoute
   HubIdEntryRoute: typeof HubIdEntryRoute
   HubIdProfileRoute: typeof HubIdProfileRoute
 }
 
 const HubIdRouteChildren: HubIdRouteChildren = {
+  HubIdAudioRoute: HubIdAudioRoute,
   HubIdEntryRoute: HubIdEntryRoute,
   HubIdProfileRoute: HubIdProfileRoute,
 }

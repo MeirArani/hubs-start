@@ -13,7 +13,7 @@ export interface TextInputFieldProps
   labelClassName?: string;
   inputClassName?: string;
   fullWidth?: boolean;
-  ref?: RefObject<any>;
+  // ref?: RefObject<any>;
 }
 
 export default function TextInputField({

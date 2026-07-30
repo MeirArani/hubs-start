@@ -49,7 +49,7 @@ export type Hub = {
     topic_id: string;
   }[];
   turn: TurnInfo;
-  scene?: HubsScene;
+  scene?: HubScene;
   embed_token?: string;
   user_data: UserData | null;
 };
@@ -76,27 +76,33 @@ export type Permissions = {
   typ: 'access';
 };
 
-export type Attribution = {
-  creator: string;
-  content?: { title: string; creator?: string; url?: string }[];
-};
+export interface Attribution {
+  name?: string;
+  title?: string;
+  author?: string;
+  url?: string;
+}
 
-type HubsScene = {
-  account_id: string | null;
+export interface HubScene {
+  account_id?: string;
   allow_promotion: boolean;
   allow_remixing: boolean;
-  attribution: string | null;
-  attributions: Attribution;
-  description: string;
-  model_url: string;
+  attribution?: string;
+  attributions?: {
+    content: Attribution[];
+    creator: string;
+  };
+  description?: string;
+  model_url?: string;
   name: string;
-  parent_scene_id: string | null;
-  project_id: string;
-  scene_id: string;
-  screenshot_url: string;
-  type: string;
-  url: string;
-};
+  parent_scene_id?: string;
+  project_id?: string;
+  scene_id?: string;
+  scene_project_url?: string;
+  screenshot_url?: string;
+  type?: string;
+  url?: string;
+}
 
 export type PresenceUpdateData = {
   sessionId: string;

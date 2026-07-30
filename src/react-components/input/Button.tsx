@@ -1,15 +1,17 @@
 import {
+  createElement,
   useRef,
   type ComponentPropsWithoutRef,
   type HTMLAttributes,
-  type MouseEvent,
   type ReactNode,
-  type Ref,
 } from 'react';
-// import '#/styles/sass/input/Button.module.scss';
 
 import { m } from '#/paraglide/messages.js';
 import { Link } from '@tanstack/react-router';
+import type {
+  PolymorphicForwardedRef,
+  PolymorphicProps,
+} from '@axa-ch/react-polymorphic-types';
 
 const presetStyles = {
   basic:
@@ -36,44 +38,59 @@ const presetStyles = {
 
 export type ButtonPreset = keyof typeof presetStyles;
 
-interface ButtonProps {
-  as?: ValidTag;
-  preset?: ButtonPreset;
-  sm?: boolean;
-  lg?: boolean;
-  xl?: boolean;
-  thin?: boolean;
-  thick?: boolean;
-  ref?: Ref<HTMLButtonElement>;
-  className?: string;
-  children?: ReactNode;
-  onClick?: (e: MouseEvent) => void;
-}
+export const ButtonDefaultElement = 'button';
 
-type ValidTag = 'button' | 'a' | 'span';
-export default function Button<T extends ValidTag = 'button'>({
-  as = 'button',
+export type ButtonAllowedElements = typeof ButtonDefaultElement | 'a' | 'span';
+
+export type ButtonOwnProps<T extends ButtonAllowedElements> =
+  ComponentPropsWithoutRef<T> & {
+    preset?: ButtonPreset;
+    sm?: boolean;
+    lg?: boolean;
+    xl?: boolean;
+    leftAligned?: boolean;
+    thin?: boolean;
+    thick?: boolean;
+    ref?: PolymorphicForwardedRef<T>;
+  };
+
+export type ButtonProps<T extends ButtonAllowedElements = 'button'> =
+  PolymorphicProps<ButtonOwnProps<T>, T, ButtonAllowedElements>;
+
+export default function Button<T extends ButtonAllowedElements>({
+  as = ButtonDefaultElement,
   preset = 'basic',
   sm,
   lg,
   xl,
   thin,
   thick,
+  leftAligned,
   className,
   children,
   ...rest
-}: ButtonProps & (ComponentPropsWithoutRef<T> & HTMLAttributes<Element>)) {
+}: ButtonProps<T>) {
   const ref = useRef(null);
-  const Tag: ValidTag = as;
-  return (
-    <Tag
-      className={`w-min font-bold transition-colors whitespace-nowrap py-0 px-2 text-left grid grid-cols-[1fr_5fr] items-center [&>svg]:mr-2  disabled:border-transparent disabled:cursor-not-allowed disabled:text-disabled-text disabled:opacity-70 disabled:bg-disabled ${presetStyles[preset]} ${thin || sm || lg || xl ? '' : 'min-h-12 min-w-39'} ${sm ? 'h-8 min-h-8 min-w-25 py-0' : ''} ${lg || xl ? 'rounded-4xl h-16 text-base' : 'h-12 text-sm'} ${lg ? 'lg:h-12' : ''} ${xl ? 'h-16' : ''} ${thin ? 'min-w-10.25 h-10.25 hover:text-text5-hover' : ''} ${thick ? 'h-13.25' : ''} rounded-base ${className}`}
-      ref={ref}
-      type="button"
-      {...rest}
-    >
-      {children}
-    </Tag>
+
+  const styles = {
+    base:
+      !sm && !lg && !xl && !thin && !thick ? 'min-w-39 min-h-12 text-sm' : '',
+    aligned: leftAligned ? 'grid grid-cols-[1fr_5fr]' : 'flex justify-center',
+    sm: sm ? 'h-8 min-h-8 min-w-25 py-0 text-sm' : '',
+    lg: lg ? 'rounded-4xl h-16 text-base hg:h-12' : '',
+    xl: xl ? 'rounded-4xl h-16 text-base' : '',
+    thin: thin ? 'min-w-10.25 h-10.25 hover:text-text5-hover' : '',
+    thick: thick ? 'h-13.25' : '',
+  } as const;
+  return createElement(
+    as,
+    {
+      className: `w-min font-bold transition-colors whitespace-nowrap py-0 px-2 text-left items-center [&>svg]:mr-2  disabled:border-transparent disabled:cursor-not-allowed disabled:text-disabled-text disabled:opacity-70 disabled:bg-disabled ${presetStyles[preset]} ${styles['base']} ${styles['aligned']} ${styles['sm']} ${styles['lg']} ${styles['xl']} ${styles['thin']} ${styles['thick']} rounded-base ${className}`,
+      ref: ref,
+      type: 'button',
+      ...rest,
+    },
+    children,
   );
 }
 
@@ -117,6 +134,14 @@ export function ContinueButton(props: ButtonProps) {
   return (
     <Button preset="accept" {...props}>
       {m['button.continue']()}
+    </Button>
+  );
+}
+
+export function ApplyButton(props: ButtonProps) {
+  return (
+    <Button preset="accept" {...props}>
+      {m['button.apply']()}
     </Button>
   );
 }

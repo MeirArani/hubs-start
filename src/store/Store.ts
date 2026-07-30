@@ -8,6 +8,7 @@ interface HubsStore {
   preferences: {
     theme: string;
     maxResolution: { width: number; height: number };
+    micMuteOnEntry: boolean;
   };
   activity: {
     entryCount?: number;
@@ -46,6 +47,7 @@ export const store = createStore<HubsStore>({
       width: getDefaultMaxResolutionWidth(),
       height: getDefaultMaxResolutionHeight(),
     },
+    micMuteOnEntry: false,
   },
   activity: {
     hasAcceptedProfile: false,

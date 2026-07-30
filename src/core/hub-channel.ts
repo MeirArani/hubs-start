@@ -10,6 +10,25 @@ import {
 } from '#/utils/phoenix-utils';
 import type { ObjectTypes } from './object-types';
 
+export interface HubSettings {
+  name: string;
+  description: string;
+  room_size: number;
+  entry_mode: 'invite' | 'allow';
+  member_permissions: {
+    voice_chat: boolean;
+    text_chat: boolean;
+    spawn_and_move_media: boolean;
+    spawn_camera: boolean;
+    pin_objects: boolean;
+    spawn_drawing: boolean;
+    spawn_emoji: boolean;
+    fly: boolean;
+  };
+  allow_promotion: boolean;
+  user_data: { hubs_use_bitecs_based_client: boolean };
+}
+
 const MS_PER_DAY = 1000 * 60 * 60 * 24;
 const MS_PER_MONTH = 1000 * 60 * 60 * 24 * 30;
 function isSameMonth(da: Date, db: Date) {
@@ -422,14 +441,7 @@ export default class HubChannel extends EventTarget {
     this.channel?.push('update_scene', { url });
   };
 
-  updateHub = (settings: {
-    name: string;
-    description: string;
-    room_size: number;
-    entry_mode: 'invite' | 'allow';
-    allow_promotion: boolean;
-    user_data: { hubs_use_bitecs_based_client: boolean };
-  }) => {
+  updateHub = (settings: Hub) => {
     if (!this._permissions.update_hub) return 'unauthorized';
     this.channel?.push('update_hub', settings);
   };

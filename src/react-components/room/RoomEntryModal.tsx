@@ -66,19 +66,19 @@ export default function RoomEntryModal({
         </div>
         <Column center gap className="mx-4 lg:mx-2">
           {showJoinRoom && (
-            <Button preset="accent4" onClick={onJoinRoom}>
+            <Button preset="accent4" onClick={onJoinRoom} leftAligned>
               <EnterIcon className="*:stroke-white" />
               <span>{m['room-entry-modal.join-room-button']()}</span>
             </Button>
           )}
           {showEnterOnDevice && (
-            <Button preset="accent5" onClick={onEnterOnDevice}>
+            <Button preset="accent5" onClick={onEnterOnDevice} leftAligned>
               <VRIcon className="**:fill-white shrink-0" />
               <span>{m['room-entry-modal.enter-on-device-button']()}</span>
             </Button>
           )}
           {showSpectate && (
-            <Button preset="accent2" onClick={onSpectate}>
+            <Button preset="accent2" onClick={onSpectate} leftAligned>
               <ShowIcon className="*:stroke-white" />
               <span>{m['room-entry-modal.spectate-button']()}</span>
             </Button>

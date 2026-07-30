@@ -36,19 +36,15 @@ export function Column<T extends ValidTag = 'div'>({
   ...rest
 }: ColumnProps<T> &
   (ComponentPropsWithoutRef<T> & HTMLAttributes<HTMLOrSVGElement>)) {
-  const centerClass =
-    center === true || center === 'horizontal' || center === 'both'
-      ? 'items-center text-center'
-      : '';
-  const centerVerticalClass =
-    center === 'vertical' || center === 'both' ? 'justify-center' : '';
-  const centerMdClass =
-    centerMd === true || centerMd === 'horizontal' || centerMd === 'both'
-      ? 'lg:items-center lg:text-center'
-      : '';
-  const centerVerticalMdClass =
-    centerMd === 'vertical' || centerMd === 'both' ? 'lg:justify-center' : '';
-
+  const padStyles = {
+    '2xs': 'p-1',
+    xs: 'p-2',
+    sm: 'p-3',
+    md: 'p-4',
+    lg: 'p-5',
+    xl: 'p-6',
+    '2xl': 'p-7',
+  } as const;
   const gapStyles = {
     '2xs': '*:mb-1',
     xs: '*:mb-2',
@@ -59,17 +55,40 @@ export function Column<T extends ValidTag = 'div'>({
     '2xl': '*:mb-7',
   } as const;
 
-  const gapStyle =
-    gap === true
-      ? gapStyles['md']
-      : typeof gap === 'string'
-        ? gapStyles[gap]
-        : '';
+  const styles = {
+    centerHorz:
+      center === true || center === 'horizontal'
+        ? 'items-center text-center'
+        : '',
+    centerVert:
+      center === 'vertical' || center === 'both' ? 'justify-center' : '',
+    centerMdHorz:
+      centerMd === true || centerMd === 'horizontal'
+        ? 'lg:items-center lg:text-center'
+        : '',
+    centerMdVert:
+      centerMd === 'vertical' || centerMd === 'both' ? 'lg:justify-center' : '',
+    gap:
+      gap === true
+        ? gapStyles['md']
+        : typeof gap === 'string'
+          ? gapStyles[gap]
+          : '',
+    pad:
+      padding === true
+        ? padStyles['md']
+        : typeof padding === 'string'
+          ? padStyles[padding]
+          : '',
+    grow: grow ? 'grow' : '',
+    overflow: overflow ? 'overflow-y-auto' : '',
+    lastChild: lastChildMargin ? 'last:mb-0' : '',
+  } as const;
 
   const Tag: ValidTag = as;
   return (
     <Tag
-      className={`p-5 flex flex-col shrink-0 ${centerClass} ${centerVerticalClass} ${centerMdClass} ${centerVerticalMdClass} ${gapStyle} ${grow ? 'grow' : ''} ${overflow ? 'overflow-y-auto' : ''} ${lastChildMargin ? 'last:mb-0' : ''} ${className}`}
+      className={`flex flex-col shrink-0 ${styles['centerHorz']} ${styles['centerVert']} ${styles['centerMdHorz']} ${styles['centerMdVert']} ${styles['gap']} ${styles['grow']} ${styles['overflow']} ${styles['lastChild']} ${styles['pad']} ${className}`}
       {...rest}
     >
       {children}

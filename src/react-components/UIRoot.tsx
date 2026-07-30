@@ -1,4 +1,11 @@
-import { useContext, useEffect, useReducer, type MouseEvent } from 'react';
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useReducer,
+  type ActionDispatch,
+  type MouseEvent,
+} from 'react';
 // import '@/styles/sass/core/ui-root.module.scss';
 // import '@/styles/sass/style-utils.module.scss';
 
@@ -38,9 +45,16 @@ import { InvitePopoverContainer } from './room/InvitePopoverContainer';
 import ChatSidebarContainer from './room/ChatSidebarContainer';
 import { Outlet, useNavigate } from '@tanstack/react-router';
 import { HubContext } from '#/routes/$hubId';
+import RoomSettingsSidebar from './room/RoomSettingsSidebar';
 
 const isMobileVR = false;
 const isMobile = false;
+
+export interface HubUIContextParams {
+  dispatchState?: ActionDispatch<[task: UITask]>;
+}
+
+export const HubUIContext = createContext<HubUIContextParams>({});
 
 interface ConditionalSignIn {
   predicate: () => boolean;
@@ -244,63 +258,72 @@ export default function UIRoot(props: UIRootProps) {
   return (
     <>
       <MoreMenuContextProvider>
-        <AudioContext value={state.audioContext || {}}>
-          <div className="w-full h-full top-0 left-0 absolute pointer-events-none ui-root">
-            {props.showPreload && hub && (
-              <PreloadOverlay
-                hubName={hub.name}
-                hubScene={hub.scene}
-                baseUrl={hubUrl(hub.hub_id)}
-                onLoadClicked={props.onPreloadLoadClicked}
-              />
-            )}
-            {/* {!state.dialog && <AvatarEditor />} */}
-            {/* {!state.dialog && showMediaBrowser && (<MediaBrowserContainer/>)} */}
-            {hub && (
-              <RoomLayout
-                scene={scene!}
-                objectFocused={!!props.selectedObject}
-                streaming={state.isStreaming}
-                viewport={
-                  <>
-                    <Outlet />
-                  </>
-                }
-                sidebar={
-                  state.sidebarId ? (
+        <HubUIContext value={{ dispatchState: dispatchState }}>
+          <AudioContext value={state.audioContext || {}}>
+            <div className="w-full h-full top-0 left-0 absolute pointer-events-none ui-root">
+              {props.showPreload && hub && (
+                <PreloadOverlay
+                  hubName={hub.name}
+                  hubScene={hub.scene}
+                  baseUrl={hubUrl(hub.hub_id)}
+                  onLoadClicked={props.onPreloadLoadClicked}
+                />
+              )}
+              {/* {!state.dialog && <AvatarEditor />} */}
+              {/* {!state.dialog && showMediaBrowser && (<MediaBrowserContainer/>)} */}
+              {hub && (
+                <RoomLayout
+                  scene={scene!}
+                  objectFocused={!!props.selectedObject}
+                  streaming={state.isStreaming}
+                  viewport={
                     <>
-                      {state.sidebarId === 'chat' && (
-                        <ChatSidebarContainer
-                          presences={props.presences}
-                          occupantCount={occupantCount()}
-                          canSpawnMessages={
-                            state.entered &&
-                            hubChannel?.can('spawn_and_move_media')
-                          }
-                          scene={scene!}
-                          onClose={() => {
-                            dispatchState({ type: 'setSidebar', id: null });
-                          }}
-                          autoFocus={state.chatAutofocus}
-                          initialValue={state.chatPrefix}
-                        />
-                      )}
+                      <Outlet />
                     </>
-                  ) : undefined
-                }
-                modal={null}
-                toolbarLeft={
-                  <>
-                    <InvitePopoverContainer
-                      hub={hub}
-                      hubChannel={hubChannel}
-                      scene={scene!}
-                    />
-                  </>
-                }
-                toolbarCenter={
-                  <>
-                    {/* <ToolbarButton
+                  }
+                  sidebar={
+                    state.sidebarId ? (
+                      <>
+                        {state.sidebarId === 'chat' && (
+                          <ChatSidebarContainer
+                            presences={props.presences}
+                            occupantCount={occupantCount()}
+                            canSpawnMessages={
+                              state.entered &&
+                              hubChannel?.can('spawn_and_move_media')
+                            }
+                            scene={scene!}
+                            onClose={() => {
+                              dispatchState({ type: 'setSidebar', id: null });
+                            }}
+                            autoFocus={state.chatAutofocus}
+                            initialValue={state.chatPrefix}
+                          />
+                        )}
+                        {state.sidebarId === 'room-settings' && (
+                          <RoomSettingsSidebar
+                            onClose={() =>
+                              dispatchState({ type: 'setSidebar', id: null })
+                            }
+                            onChangeScene={() => {}}
+                          />
+                        )}
+                      </>
+                    ) : undefined
+                  }
+                  modal={null}
+                  toolbarLeft={
+                    <>
+                      <InvitePopoverContainer
+                        hub={hub}
+                        hubChannel={hubChannel}
+                        scene={scene!}
+                      />
+                    </>
+                  }
+                  toolbarCenter={
+                    <>
+                      {/* <ToolbarButton
                       icon={EnterIcon}
                       label={m['toolbar.join-room-button']()}
                       preset="accept"
@@ -308,40 +331,44 @@ export default function UIRoot(props: UIRootProps) {
                         console.log('clickly');
                       }}
                     /> */}
-                    <ChatToolbarButton
-                      onClick={() =>
-                        dispatchState({
-                          type: 'toggleSidebar',
-                          id: 'chat',
-                          otherState: { chatPrefix: '', chatAutofocus: false },
-                        })
-                      }
-                      selected={state.sidebarId === 'chat'}
-                    />
-                  </>
-                }
-                toolbarRight={
-                  <>
-                    <ToolbarButton
-                      icon={LeaveIcon}
-                      label={m['toolbar.leave-room-button']()}
-                      preset="cancel"
-                      className="**:stroke-white"
-                      onClick={() => {
-                        console.log('clickly');
-                      }}
-                    />
-                  </>
-                }
-              />
-            )}
-            {/* {props.showBitECSBasedClientRefreshPrompt && (
+                      <ChatToolbarButton
+                        onClick={() =>
+                          dispatchState({
+                            type: 'toggleSidebar',
+                            id: 'chat',
+                            otherState: {
+                              chatPrefix: '',
+                              chatAutofocus: false,
+                            },
+                          })
+                        }
+                        selected={state.sidebarId === 'chat'}
+                      />
+                    </>
+                  }
+                  toolbarRight={
+                    <>
+                      <ToolbarButton
+                        icon={LeaveIcon}
+                        label={m['toolbar.leave-room-button']()}
+                        preset="cancel"
+                        className="**:stroke-white"
+                        onClick={() => {
+                          console.log('clickly');
+                        }}
+                      />
+                    </>
+                  }
+                />
+              )}
+              {/* {props.showBitECSBasedClientRefreshPrompt && (
               <div className="bitecs-based-client-refresh-prompt">
                 {m['ui-root.bitecs-based-client-refresh-prompt']()}
               </div>
             )} */}
-          </div>
-        </AudioContext>
+            </div>
+          </AudioContext>
+        </HubUIContext>
       </MoreMenuContextProvider>
     </>
   );

@@ -1,7 +1,7 @@
-@import "tailwindcss";
 @import "@fontsource/poppins/400";
 @import "@fontsource/poppins/500";
 @import "@fontsource/poppins/700";
+@import "tailwindcss" source('../');
 
 @theme {
   --breakpoint-vr: 600px;
@@ -89,6 +89,7 @@
   --color-discord-text3-color: rgb(127, 127, 127);
   --color-discord-text4-color: rgb(64, 64, 64);
 
+  --font-poppins: "Poppins";
   --font-sans: "Poppins", "-apple-system", "BlinkMacSystemFont", "Segoe UI", "Roboto", "Helvetica", "Arial", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
   --font-mono: Consolas, "Andale Mono WT", "Andale Mono", "Lucida Console", "Lucida Sans Typewriter", "DejaVu Sans Mono",
       "Bitstream Vera Sans Mono", "Liberation Mono", "Nimbus Mono L", Monaco, "Courier New", Courier, monospace;
@@ -97,6 +98,7 @@
 }
 
 @theme inline {
+
 /* Theme Colors */
   --color-text-primary: var(--color-black);
   --color-text-primary-hover: var(--color-black-hover);
