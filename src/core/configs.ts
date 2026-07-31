@@ -1,4 +1,4 @@
-import { createStore } from '@tanstack/store';
+import { createStore, type StoreAction } from '@tanstack/store';
 
 // TODO: Inject env vars from server
 // TODO: (ALSO) Migrate reticulum to JS?
@@ -6,9 +6,16 @@ import { createStore } from '@tanstack/store';
 interface HubsAppConfig {
   features: {
     defaultRoomSize: number;
+    disableRoomCreation: boolean;
     maxRoomSize: number;
     showCompanyLogo: boolean;
+    showCommunityLink: boolean;
+    showControlsLink: boolean;
+    showDocsLink: boolean;
     showIssueReportLink: boolean;
+    showPrivacy: boolean;
+    showTerms: boolean;
+    showWhatsNewLink: boolean;
   };
   images: {
     companyLogo: string;
@@ -16,6 +23,14 @@ interface HubsAppConfig {
     homeBackground: string;
     logo: string;
     logoDark: string;
+  };
+  links: {
+    community: 'https://discord.gg/dFJncWwHun';
+    issueReport: 'https://docs.hubsfoundation.org/help.html';
+    docs: 'https://docs.hubsfoundation.org';
+    controls: 'https://docs.hubsfoundation.org/hubs-controls.html';
+    termsOfUse: 'https://hubsfoundation.org/hubs-terms-of-use';
+    privacyNotice: 'https://hubsfoundation.org/hubs-privacy-policy';
   };
 }
 
@@ -47,44 +62,65 @@ interface HubsConfig {
   isAdmin: boolean;
 }
 
-export const configs = createStore<HubsConfig>({
-  appConfig: {
-    features: {
-      defaultRoomSize: 10,
-      maxRoomSize: 50,
-      showCompanyLogo: true,
-      showIssueReportLink: true,
+interface HubsConfigActions extends Record<string, StoreAction> {
+  features: (name: keyof HubsAppConfig['features']) => number | boolean;
+  link: (name: keyof HubsAppConfig['links']) => string;
+}
+
+export const configs = createStore<HubsConfig, HubsConfigActions>(
+  {
+    appConfig: {
+      features: {
+        defaultRoomSize: 10,
+        disableRoomCreation: false,
+        maxRoomSize: 50,
+        showCompanyLogo: true,
+        showCommunityLink: false,
+        showControlsLink: true,
+        showDocsLink: false,
+        showIssueReportLink: false,
+        showPrivacy: false,
+        showTerms: false,
+        showWhatsNewLink: false,
+      },
+      images: {
+        companyLogo: '',
+        favicon: '',
+        homeBackground: '',
+        logo: '',
+        logoDark: '',
+      },
+      links: {},
     },
-    images: {
-      companyLogo: '',
-      favicon: '',
-      homeBackground: '',
-      logo: '',
-      logoDark: '',
+    availableIntegrations: {
+      bing_images: false,
+      bing_videos: false,
+      icosa: false,
+      sketchfab: false,
+      tenor: false,
+      twitch: false,
+      twitter: false,
+      youtube_videos: false,
     },
+    baseAssetsPath: import.meta.env.HUBS_BASE_ASSETS_PATH,
+    corsProxyServer: import.meta.env.HUBS_CORS_PROXY_SERVER,
+    gaTrackingId: import.meta.env.HUBS_GA_TRACKING_ID,
+    isLocalOrCustomClient: false,
+    nonCorsProxyDomains: import.meta.env.HUBS_NON_CORS_PROXY_DOMAINS,
+    reticulumServer: import.meta.env.HUBS_RETICULUM_SERVER,
+    sentryDsn: import.meta.env.HUBS_SENTRY_DSN,
+    shortlinkDomain: import.meta.env.HUBS_SHORTLINK_DOMAIN,
+    thumbnailServer: import.meta.env.HUBS_THUMBNAIL_SERVER,
+    hasThumbnailServerMetaTag: false,
+    isAdmin: false,
   },
-  availableIntegrations: {
-    bing_images: false,
-    bing_videos: false,
-    icosa: false,
-    sketchfab: false,
-    tenor: false,
-    twitch: false,
-    twitter: false,
-    youtube_videos: false,
-  },
-  baseAssetsPath: import.meta.env.HUBS_BASE_ASSETS_PATH,
-  corsProxyServer: import.meta.env.HUBS_CORS_PROXY_SERVER,
-  gaTrackingId: import.meta.env.HUBS_GA_TRACKING_ID,
-  isLocalOrCustomClient: false,
-  nonCorsProxyDomains: import.meta.env.HUBS_NON_CORS_PROXY_DOMAINS,
-  reticulumServer: import.meta.env.HUBS_RETICULUM_SERVER,
-  sentryDsn: import.meta.env.HUBS_SENTRY_DSN,
-  shortlinkDomain: import.meta.env.HUBS_SHORTLINK_DOMAIN,
-  thumbnailServer: import.meta.env.HUBS_THUMBNAIL_SERVER,
-  hasThumbnailServerMetaTag: false,
-  isAdmin: false,
-});
+
+  ({ setState, get }) => ({
+    features: (name: keyof HubsAppConfig['features']) =>
+      get().appConfig.features[name],
+    link: (name: keyof HubsAppConfig['links']) => get().appConfig.links[name],
+  }),
+);
 
 export function setIsAdmin(isAdmin: boolean) {
   configs.setState((prev) => ({ ...prev, isAdmin: isAdmin }));

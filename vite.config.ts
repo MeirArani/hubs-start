@@ -29,7 +29,15 @@ const config = defineConfig({
     nitro({ rollupConfig: { external: [/^@sentry\//] } }),
     tanstackStart(),
     viteReact(),
-    svgr(),
+    svgr({
+      svgrOptions: {
+        replaceAttrValues: {
+          '#000': 'currentColor',
+          '#000000': 'currentColor',
+          black: 'currentColor',
+        },
+      },
+    }),
     tailwindcss(),
   ],
 });

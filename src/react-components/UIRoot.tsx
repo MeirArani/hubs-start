@@ -12,13 +12,14 @@ import {
 import {
   CompactMoreMenuButton,
   MoreMenuContextProvider,
+  MoreMenuPopoverButton,
 } from './room/MoreMenuPopover';
 import RoomEntryModal from './room/RoomEntryModal';
 import { AudioContext } from './WrapWithAudio';
 import PreloadOverlay from './PreloadOverlay';
 import type { Hub, UserInfo } from '#/types/hubs';
 import { store } from '#/store/store';
-import { useSelector } from '@tanstack/react-store';
+import { _useStore, useSelector } from '@tanstack/react-store';
 import type HubChannel from '#/core/hub-channel';
 import { m } from '@/paraglide/messages.js';
 import { hubUrl } from '#/utils/phoenix-utils';
@@ -46,6 +47,22 @@ import ChatSidebarContainer from './room/ChatSidebarContainer';
 import { Outlet, useNavigate } from '@tanstack/react-router';
 import { HubContext } from '#/routes/$hubId';
 import RoomSettingsSidebar from './room/RoomSettingsSidebar';
+import AddIcon from '@/react-components/icons/Add.svg?react';
+import AvatarIcon from '@/react-components/icons/Avatar.svg?react';
+import FavoritesIcon from '@/react-components/icons/Favorites.svg?react';
+import SettingsIcon from '@/react-components/icons/Settings.svg?react';
+import HomeIcon from '@/react-components/icons/Home.svg?react';
+import InviteIcon from '@/react-components/icons/Invite.svg?react';
+import CameraIcon from '@/react-components/icons/Camera.svg?react';
+import DeleteIcon from '@/react-components/icons/Delete.svg?react';
+import DiscordIcon from '@/react-components/icons/Discord.svg?react';
+import SupportIcon from '@/react-components/icons/Support.svg?react';
+import ShieldIcon from '@/react-components/icons/Shield.svg?react';
+import TextDocumentIcon from '@/react-components/icons/TextDocument.svg?react';
+import WarningCircleIcon from '@/react-components/icons/WarningCircle.svg?react';
+import StarIcon from '@/react-components/icons/Star.svg?react';
+import StarOutlineIcon from '@/react-components/icons/StarOutline.svg?react';
+import { configs as ConfigStore } from '#/core/configs';
 
 const isMobileVR = false;
 const isMobile = false;
@@ -106,6 +123,8 @@ interface UIState {
   waitingOnAudio: boolean;
   dialog: unknown;
   isStreaming: boolean;
+  signedIn: boolean;
+  isFavorited: boolean;
 }
 
 const initUIState: UIState = {
@@ -120,6 +139,8 @@ const initUIState: UIState = {
   selectedUserId: null,
   waitingOnAudio: false,
   dialog: null,
+  signedIn: false,
+  isFavorited: false,
 };
 
 type UITask =
@@ -168,6 +189,11 @@ export default function UIRoot(props: UIRootProps) {
   const breakpoint = useCssBreakpoints();
   // const { voice_chat: canVoiceChat } = usePermissions();
 
+  const [configs, { features, link }] = _useStore(
+    ConfigStore,
+    (state) => state,
+  );
+
   useEffect(() => {
     const el = document.getElementById('preload-overlay');
     if (el) {
@@ -191,6 +217,11 @@ export default function UIRoot(props: UIRootProps) {
 
   const [state, dispatchState] = useReducer(handleUITask, initUIState);
   const currentStreamer = getCurrentStreamer();
+
+  const canCreateRooms = !features('disableRoomCreation') || configs.isAdmin;
+  const canCloseRoom = hubChannel.canOrWillIfCreator('close_hub');
+  const isModerator =
+    hubChannel.canOrWillIfCreator('kick_users') && !isMobileVR;
 
   const renderEntryStartPanel = () => {
     const waitingOnAudio = useSelector(store, (store) => store.waitingOnAudio);
@@ -254,6 +285,175 @@ export default function UIRoot(props: UIRootProps) {
   const occupantCount = () => {
     return props.presences ? Object.entries(props.presences).length : 0;
   };
+
+  const moreMenu = [
+    {
+      id: 'user',
+      label: !state.signedIn
+        ? m['more-menu.not-signed-in']()
+        : m['more-menu.you-signed-in-as']({
+            email: 'fa.e@email.com',
+          }),
+      items: [
+        state.signedIn
+          ? {
+              id: 'sign-out',
+              label: m['more-menu.sign-out'](),
+              icon: LeaveIcon,
+              onClick: async () => {},
+            }
+          : {
+              id: 'sign-in',
+              label: m['more-menu.sign-in'](),
+              icon: EnterIcon,
+              onClick: () => {},
+            },
+        canCreateRooms && {
+          id: 'create-room',
+          label: m['more-menu.create-room'](),
+          icon: AddIcon,
+          onClick: async () => {},
+        },
+        {
+          id: 'user-profile',
+          label: m['more-menu.profile'](),
+          icon: AvatarIcon,
+          onClick: () => {
+            dispatchState({
+              type: 'setSidebar',
+              id: 'profile',
+            });
+          },
+        },
+        {
+          id: 'favorite-rooms',
+          label: m['more-menu.favorite-rooms'](),
+          icon: FavoritesIcon,
+          onClick: () => {},
+        },
+        {
+          id: 'preferences',
+          label: m['more-menu.preferences'](),
+          icon: SettingsIcon,
+          onClick: () => {},
+        },
+      ].filter((item) => item), // CHECK
+    },
+    {
+      id: 'room',
+      label: m['more-menu.room'](),
+      items: [
+        {
+          id: 'room-info',
+          label: m['more-menu.room-info'](),
+          icon: HomeIcon,
+          onClick: () => {
+            dispatchState({
+              type: 'setSidebar',
+              id: 'room-info',
+            });
+          },
+        },
+        breakpoint === 'sm' ||
+          (breakpoint === 'md' &&
+            (hub.entry_mode !== 'invite' || hubChannel.can('update_hub')) && {
+              id: 'invite',
+              label: m['more-menu.invite'](),
+              icon: InviteIcon,
+              onClick: () => {},
+            }),
+        state.isFavorited
+          ? {
+              id: 'unfavorite-room',
+              label: m['more-menu.unfavorite-room'](),
+              icon: StarIcon,
+              onClick: () => {},
+            }
+          : {
+              id: 'favorite-room',
+              label: m['more-menu.favorite-room'](),
+              icon: StarOutlineIcon,
+              onClick: () => {},
+            },
+        isModerator &&
+          state.entered && {
+            id: 'streamer-mode',
+            label: state.isStreaming
+              ? m['more-menu.exit-streamer-mode']
+              : m['more-menu.enter-streamer-mode'](),
+            icon: CameraIcon,
+            onClick: () => {},
+          },
+        (breakpoint === 'sm' || breakpoint === 'md') &&
+          state.entered && {
+            id: 'leave-room',
+            label: m['more-menu.enter-leave-room'](),
+            icon: LeaveIcon,
+            onClick: () => {},
+          },
+        canCloseRoom && {
+          id: 'close-room',
+          label: m['more-menu.close-room'](),
+          icon: DeleteIcon,
+          onClick: () => {},
+        },
+      ].filter((item) => item),
+    },
+    {
+      id: 'support',
+      label: m['more-menu.support'](),
+      items: [
+        features('showCommunityLink') && {
+          id: 'community',
+          label: m['more-menu.community'](),
+          icon: DiscordIcon,
+          href: link('community'),
+        },
+        features('showIssueReportLink') && {
+          id: 'report-issue',
+          label: m['more-menu.report-issue'](),
+          icon: WarningCircleIcon,
+          href: link('issueReport'),
+        },
+        state.entered && {
+          id: 'start-tour',
+          label: m['more-menu.start-tour'](),
+          icon: SupportIcon,
+          onClick: () => {},
+        },
+        features('showDocsLink') && {
+          id: 'help',
+          label: m['more-menu.help'](),
+          icon: SupportIcon,
+          href: link('docs'),
+        },
+        features('showControlsLink') && {
+          id: 'controls',
+          label: m['more-menu.controls'](),
+          icon: SupportIcon,
+          href: link('controls'),
+        },
+        features('showWhatsNewLink') && {
+          id: 'whats-new',
+          label: m['more-menu.whats-new'](),
+          icon: SupportIcon,
+          href: '/whats-new',
+        },
+        features('showTerms') && {
+          id: 'tos',
+          label: m['more-menu.tos'](),
+          icon: TextDocumentIcon,
+          href: link('termsOfUse'),
+        },
+        features('showPrivacy') && {
+          id: 'privacy',
+          label: m['more-menu.privacy'](),
+          icon: ShieldIcon,
+          href: link('privacyNotice'),
+        },
+      ].filter((item) => item),
+    },
+  ];
 
   return (
     <>
@@ -348,15 +548,7 @@ export default function UIRoot(props: UIRootProps) {
                   }
                   toolbarRight={
                     <>
-                      <ToolbarButton
-                        icon={LeaveIcon}
-                        label={m['toolbar.leave-room-button']()}
-                        preset="cancel"
-                        className="**:stroke-white"
-                        onClick={() => {
-                          console.log('clickly');
-                        }}
-                      />
+                      <MoreMenuPopoverButton menu={moreMenu} />
                     </>
                   }
                 />

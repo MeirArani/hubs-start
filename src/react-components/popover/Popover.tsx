@@ -179,7 +179,7 @@ export default function Popover({
                   onClick={closePopover}
                   className={`absolute border-none bg-transparent *:hover:text-link-hover *:active:text-link-pressed ${fullscreen ? 'left-4' : 'left-2'}`}
                 />
-                <h5 className="flex">{title}</h5>
+                <h5 className="flex font-bold">{title}</h5>
               </div>
             )}
             <div className="overflow-y-auto overflow-x-hidden popover-bottom:pt-2 popover-top:pb-2 popover-right:pl-2 popover-left:pr-2 ">

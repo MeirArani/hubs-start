@@ -130,7 +130,7 @@ export default function ToolbarButton({
       >
         {icon && (
           <SVGIcon
-            className={`text-toolbar-icon *:[stroke="\#000"]:transition *:[fill="\#000"]:transition disabled:text-gray-400 hover:disabled:text-gray-400}`}
+            className={`text-black *:[stroke="\#000"]:transition *:[fill="\#000"]:transition disabled:text-gray-400 hover:disabled:text-gray-400}`}
             SVG={icon}
           />
         )}
