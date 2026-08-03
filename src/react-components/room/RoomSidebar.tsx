@@ -1,7 +1,11 @@
 import { m } from '#/paraglide/messages';
-import type { Attribution, HubScene } from '#/types/hubs';
+import type { Attribution, Hub, HubScene } from '#/types/hubs';
 import Button from '../input/Button';
+import { CloseButton } from '../input/CloseButton';
+import IconButton from '../input/IconButton';
 import InputField from '../input/InputField';
+import { Column } from '../layout/Column';
+import Sidebar from '../sidebar/Sidebar';
 
 function SceneAttribution({ attribution }: { attribution: Attribution }) {
   const unknown = m['room-sidebar.unknown']();
@@ -98,7 +102,7 @@ export function SceneInfo({
       <h2 className="text-sm font-bold text-text-secondary my-4 first:mt-0">
         {m['room-sidebar.scene-info.title']()}
       </h2>
-      <div className="relative w-full rounded-xl">
+      <div className="relative w-full rounded-xl mb-4">
         {scene.screenshot_url &&
           (showSceneLink ? (
             <a href={scene.url} target="_blank" rel="noopener noreferrer">
@@ -131,5 +135,57 @@ export function SceneInfo({
       )}
       {changeSceneButton}
     </>
+  );
+}
+
+export interface RoomSidebarProps {
+  room: Hub;
+  accountId: string;
+  onClose: () => void;
+  canEdit: boolean;
+  onEdit: () => void;
+  onChangeScene: () => void;
+}
+
+export function RoomSidebar({
+  room,
+  accountId,
+  onClose,
+  canEdit,
+  onEdit,
+  onChangeScene,
+}: RoomSidebarProps) {
+  return (
+    <Sidebar
+      title={m['room-sidebar.title']()}
+      beforeTitle={<CloseButton onClick={onClose} />}
+      afterTitle={
+        canEdit && (
+          <IconButton onClick={onEdit}>
+            {m['room-sidebar.edit-button']()}
+          </IconButton>
+        )
+      }
+    >
+      <Column padding>
+        <InputField label={m['room-sidebar.room-name']()}>
+          {room.name}
+        </InputField>
+        {room.description && (
+          <InputField label={m['room-sidebar.room-description']()}>
+            {room.description}
+          </InputField>
+        )}
+        {room.scene && (
+          <SceneInfo
+            accountId={accountId}
+            scene={room.scene}
+            showAttributions
+            canChangeScene={canEdit}
+            onChangeScene={onChangeScene}
+          />
+        )}
+      </Column>
+    </Sidebar>
   );
 }

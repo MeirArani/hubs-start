@@ -13,7 +13,7 @@ export default function CreateRoomButton() {
         const hub = await createNewHub();
         const { hubId } = hub;
         navigate({
-          to: '/$hubId',
+          to: '/$hubId/entry',
           params: { hubId },
         });
       }}

@@ -63,6 +63,7 @@ import WarningCircleIcon from '@/react-components/icons/WarningCircle.svg?react'
 import StarIcon from '@/react-components/icons/Star.svg?react';
 import StarOutlineIcon from '@/react-components/icons/StarOutline.svg?react';
 import { configs as ConfigStore } from '#/core/configs';
+import { RoomSidebar } from './room/RoomSidebar';
 
 const isMobileVR = false;
 const isMobile = false;
@@ -81,6 +82,7 @@ interface ConditionalSignIn {
 }
 
 interface UIRootProps {
+  sessionId?: string;
   showPreload?: boolean;
   selectedObject?: object;
   onPreloadLoadClicked?: () => void;
@@ -284,6 +286,10 @@ export default function UIRoot(props: UIRootProps) {
 
   const occupantCount = () => {
     return props.presences ? Object.entries(props.presences).length : 0;
+  };
+
+  const onChangeScene = () => {
+    // TODO: Add logic
   };
 
   const moreMenu = [
@@ -506,6 +512,20 @@ export default function UIRoot(props: UIRootProps) {
                               dispatchState({ type: 'setSidebar', id: null })
                             }
                             onChangeScene={() => {}}
+                          />
+                        )}
+                        {state.sidebarId === 'room-info' && (
+                          <RoomSidebar
+                            accountId={props.sessionId || ''}
+                            room={hub}
+                            canEdit={hubChannel.canOrWillIfCreator(
+                              'update_hub',
+                            )}
+                            onEdit={() => {}}
+                            onClose={() =>
+                              dispatchState({ type: 'setSidebar', id: null })
+                            }
+                            onChangeScene={onChangeScene}
                           />
                         )}
                       </>
