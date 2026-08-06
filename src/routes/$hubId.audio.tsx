@@ -3,7 +3,11 @@ import BackButton from '#/react-components/input/BackButton';
 import { Column } from '#/react-components/layout/Column';
 import Spinner from '#/react-components/misc/Spinner';
 import { Modal } from '#/react-components/modal/Modal';
-import { createFileRoute, getRouteApi } from '@tanstack/react-router';
+import {
+  createFileRoute,
+  getRouteApi,
+  useNavigate,
+} from '@tanstack/react-router';
 import MicrophoneIcon from '#/react-components/icons/Microphone.svg?react';
 import MicrophoneMutedIcon from '#/react-components/icons/MicrophoneMuted.svg?react';
 import VolumeLevelBar from '#/react-components/misc/VolumeLevelBar';
@@ -49,6 +53,8 @@ function RouteComponent() {
   const [isMicMutedOnEntry, setIsMicMutedOnEntry] = useState(
     store.state.preferences.micMuteOnEntry,
   );
+
+  const navigate = getRouteApi('/$hubId/audio').useNavigate();
 
   const iconStyle = isMicrophoneEnabled
     ? 'w-12 h-12 text-text-primary [&>path]:stroke-1'
@@ -189,7 +195,7 @@ function RouteComponent() {
             )}
           </div>
         </div>
-        <Button preset="primary">
+        <Button preset="primary" onClick={() => navigate({ to: '/$hubId' })}>
           {m['mic-setup-modal.enter-room-button']()}
         </Button>
       </Column>

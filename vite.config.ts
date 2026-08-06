@@ -9,6 +9,7 @@ import tailwindcss from '@tailwindcss/vite';
 import { nitro } from 'nitro/vite';
 import svgr from 'vite-plugin-svgr';
 const config = defineConfig({
+  assetsInclude: ['**/*.glb', '**/*.gltf'],
   envPrefix: 'HUBS_',
   resolve: { tsconfigPaths: true },
   plugins: [
@@ -25,7 +26,11 @@ const config = defineConfig({
         },
       ],
     }),
-    devtools(),
+    devtools({
+      injectSource: {
+        enabled: false,
+      },
+    }),
     nitro({ rollupConfig: { external: [/^@sentry\//] } }),
     tanstackStart(),
     viteReact(),

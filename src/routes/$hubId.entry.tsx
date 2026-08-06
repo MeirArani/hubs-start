@@ -4,7 +4,7 @@ import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import { useSelector } from '@tanstack/react-store';
 import { useContext, useEffect } from 'react';
 import { useCssBreakpoints } from 'react-use-css-breakpoints';
-import { HubContext } from './$hubId';
+import { HubContext } from '#/react-components/context/HubsContext';
 import { m } from '#/paraglide/messages';
 import AppLogo from '#/react-components/AppLogo';
 import Button from '#/react-components/input/Button';
@@ -53,8 +53,6 @@ function RoomEntryContainer({
     ? !hasAcceptedProfile
     : !hasChangedNameOrPronouns;
   const showJoinRoom = true || (waitingOnAudio && !entryDisallowed);
-
-  console.log(promptForNameAndAvatarBeforeEntry);
 
   const onJoinRoom = () => {
     if (promptForNameAndAvatarBeforeEntry) {

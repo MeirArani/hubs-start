@@ -3,7 +3,6 @@ import type {
   TransportDataPayload,
   TransportDataPayloadSyncable,
 } from '#/networking/transport-for-channel';
-import type { Permission } from '#/systems/aframe/permissions';
 import type { Component, Schema } from '#/types/networked-aframe';
 
 interface EntityMetadata {
@@ -12,6 +11,40 @@ interface EntityMetadata {
   isPinned: boolean;
 }
 
+export type Permission =
+  | 'join_hub'
+  | 'update_hub'
+  | 'update_hub_promotion'
+  | 'update_roles'
+  | 'close_hub'
+  | 'embed_hub'
+  | 'kick_users'
+  | 'mute_users'
+  | 'amplify_audio'
+  | 'spawn_camera'
+  | 'spawn_drawing'
+  | 'spawn_and_move_media'
+  | 'pin_objects'
+  | 'spawn_emoji'
+  | 'fly'
+  | 'voice_chat'
+  | 'ret_admin'
+  | 'text_chat';
+
+export type Permissions = {
+  account_id: number;
+  aud: string;
+  create_hub: boolean;
+  exp: number;
+  iat: number;
+  iss: string;
+  jti: string;
+  nbf: number;
+  postgrest_role: string;
+  sub: string;
+  tweet: boolean;
+  typ: 'access';
+};
 const emptyObject = {};
 
 const persistentSyncs: Record<string, TransportDataPayloadSyncable> = {};

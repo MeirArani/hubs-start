@@ -11,6 +11,11 @@ declare module 'aframe' {
 
   interface Entity {
     eid: number;
+    addEventListener(
+      type: string,
+      listener: EventListenerOrEventListenerObject | DetailEvent,
+      options?: AddEventListenerOptions,
+    ): void;
   }
 }
 declare global {

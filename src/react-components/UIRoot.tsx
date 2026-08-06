@@ -3,8 +3,11 @@ import {
   useContext,
   useEffect,
   useReducer,
+  useRef,
+  useState,
   type ActionDispatch,
   type MouseEvent,
+  type RefObject,
 } from 'react';
 // import '@/styles/sass/core/ui-root.module.scss';
 // import '@/styles/sass/style-utils.module.scss';
@@ -17,7 +20,7 @@ import {
 import RoomEntryModal from './room/RoomEntryModal';
 import { AudioContext } from './WrapWithAudio';
 import PreloadOverlay from './PreloadOverlay';
-import type { Hub, UserInfo } from '#/types/hubs';
+import type { UserInfo } from '#/types/hubs';
 import { store } from '#/store/store';
 import { _useStore, useSelector } from '@tanstack/react-store';
 import type HubChannel from '#/core/hub-channel';
@@ -44,8 +47,8 @@ import EnterIcon from './icons/Enter.svg?react';
 import LeaveIcon from './icons/Leave.svg?react';
 import { InvitePopoverContainer } from './room/InvitePopoverContainer';
 import ChatSidebarContainer from './room/ChatSidebarContainer';
-import { Outlet, useNavigate } from '@tanstack/react-router';
-import { HubContext } from '#/routes/$hubId';
+import { ClientOnly, Outlet, useNavigate } from '@tanstack/react-router';
+import { HubContext } from './context/HubsContext';
 import RoomSettingsSidebar from './room/RoomSettingsSidebar';
 import AddIcon from '@/react-components/icons/Add.svg?react';
 import AvatarIcon from '@/react-components/icons/Avatar.svg?react';
@@ -64,6 +67,8 @@ import StarIcon from '@/react-components/icons/Star.svg?react';
 import StarOutlineIcon from '@/react-components/icons/StarOutline.svg?react';
 import { configs as ConfigStore } from '#/core/configs';
 import { RoomSidebar } from './room/RoomSidebar';
+import { Canvas, useFrame, type ThreeElements } from '@react-three/fiber';
+import type { Mesh } from 'three';
 
 const isMobileVR = false;
 const isMobile = false;

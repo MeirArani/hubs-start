@@ -1,5 +1,3 @@
-import type { Permission } from '#/types/hubs';
-
 export const LogMessageKinds = [
   'roomEntryRequired',
   'flyModeDisabled',

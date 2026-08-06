@@ -1,7 +1,7 @@
 import {
   getDefaultMaxResolutionHeight,
   getDefaultMaxResolutionWidth,
-} from '#/utils/screen-orientation.client';
+} from '#/utils/screen-orientation';
 import { createStore } from '@tanstack/store';
 
 interface HubsStore {

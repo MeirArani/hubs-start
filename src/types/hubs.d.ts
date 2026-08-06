@@ -1,25 +1,5 @@
 import type { App } from '#/core/app';
 
-export type Permission =
-  | 'join_hub'
-  | 'update_hub'
-  | 'update_hub_promotion'
-  | 'update_roles'
-  | 'close_hub'
-  | 'embed_hub'
-  | 'kick_users'
-  | 'mute_users'
-  | 'amplify_audio'
-  | 'spawn_camera'
-  | 'spawn_drawing'
-  | 'spawn_and_move_media'
-  | 'pin_objects'
-  | 'spawn_emoji'
-  | 'fly'
-  | 'voice_chat'
-  | 'ret_admin'
-  | 'text_chat';
-
 export type PresenceKind = 'room' | 'lobby';
 export type InflatorParams = {};
 
@@ -29,31 +9,6 @@ export type Inflator<T extends InflatorParams> = (
   params: T,
 ) => number;
 
-export type Hub = {
-  allow_promotion: boolean;
-  description: string | null;
-  entry_code: 0;
-  entry_mode: 'invite' | 'allow';
-  host: string;
-  hub_id: string;
-  lobby_count: number;
-  member_count: number;
-  member_permissions: Record<Permission, boolean>;
-  name?: string;
-  port: number;
-  room_size: number;
-  slug?: string;
-  topics: {
-    assets: { asset_type: string; src: string }[];
-    janus_room_id: number;
-    topic_id: string;
-  }[];
-  turn: TurnInfo;
-  scene?: HubScene;
-  embed_token?: string;
-  user_data: UserData | null;
-};
-
 export type EmitterEvents = {
   on: (event: string, callback: (payload: any) => void) => number;
   off: (event: string, ref: number) => void;
@@ -61,46 +16,10 @@ export type EmitterEvents = {
   getBindings: () => Binding[];
 };
 
-export type Permissions = {
-  account_id: number;
-  aud: string;
-  create_hub: boolean;
-  exp: number;
-  iat: number;
-  iss: string;
-  jti: string;
-  nbf: number;
-  postgrest_role: string;
-  sub: string;
-  tweet: boolean;
-  typ: 'access';
-};
-
 export interface Attribution {
   name?: string;
   title?: string;
   author?: string;
-  url?: string;
-}
-
-export interface HubScene {
-  account_id?: string;
-  allow_promotion: boolean;
-  allow_remixing: boolean;
-  attribution?: string;
-  attributions?: {
-    content: Attribution[];
-    creator: string;
-  };
-  description?: string;
-  model_url?: string;
-  name: string;
-  parent_scene_id?: string;
-  project_id?: string;
-  scene_id?: string;
-  scene_project_url?: string;
-  screenshot_url?: string;
-  type?: string;
   url?: string;
 }
 
@@ -187,10 +106,6 @@ export type MemberPermissions = {
   fly: boolean;
   voice_chat: boolean;
   text_chat: boolean;
-};
-
-export type UserData = {
-  hubs_use_bitecs_based_client: boolean;
 };
 
 export type RoomSettings = {

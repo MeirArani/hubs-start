@@ -2,7 +2,7 @@ import { configs } from '#/core/configs';
 import { useSelector } from '@tanstack/react-store';
 import { useCallback, useContext, useEffect, useState } from 'react';
 import { useInviteUrl } from './hooks/useInviteUrl';
-import { HubContext } from '#/routes/$hubId';
+import { HubContext } from '../context/HubsContext';
 import { useForm } from 'react-hook-form';
 import Sidebar from '../sidebar/Sidebar';
 import { m } from '#/paraglide/messages';
@@ -17,14 +17,13 @@ import { RadioInputOption } from '../input/RadioInput';
 import ToggleInput from '../input/ToggleInput';
 import InputField from '../input/InputField';
 import Button, { ApplyButton } from '../input/Button';
-import type { HubSettings } from '#/core/hub-channel';
 import { canShare } from '#/utils/share';
 import ShareIcon from '../icons/Share.svg?react';
 import { getLocale } from '#/paraglide/runtime';
 import Checkbox from '../input/Checkbox';
 import { InviteLinkInputField } from './InviteLinkInputField';
 import { SceneInfo } from './RoomSidebar';
-import type { Hub } from '#/types/hubs';
+import type { Hub } from '#/core/hub';
 
 const NotifiablePermissions = ['text_chat', 'voice_chat'] as const;
 

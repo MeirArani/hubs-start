@@ -1,5 +1,6 @@
+import type { Hub, HubScene } from '#/core/hub';
 import { m } from '#/paraglide/messages';
-import type { Attribution, Hub, HubScene } from '#/types/hubs';
+import type { Attribution } from '#/types/hubs';
 import Button from '../input/Button';
 import { CloseButton } from '../input/CloseButton';
 import IconButton from '../input/IconButton';

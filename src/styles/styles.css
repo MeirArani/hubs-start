@@ -574,6 +574,7 @@ small {
 }
 
 
+
 @custom-variant popover-bottom (&[data-popper-placement^="bottom"]);
 @custom-variant popover-top (&[data-popper-placement^="top"]);
 @custom-variant popover-right (&[data-popper-placement^="right"]);
