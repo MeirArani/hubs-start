@@ -1,3 +1,5 @@
+import type { Permission } from '#/utils/permission';
+
 export const LogMessageKinds = [
   'roomEntryRequired',
   'flyModeDisabled',

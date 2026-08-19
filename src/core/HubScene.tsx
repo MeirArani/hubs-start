@@ -1,4 +1,4 @@
-import { UserInputSystem, useInput } from '#/input/UserInput.client';
+import { UserInputSystem, useInput } from '#/input/UserInput.client.tsx';
 import { useFrame, useLoader } from '@react-three/fiber';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 

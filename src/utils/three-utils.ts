@@ -38,19 +38,19 @@ const tempVector3 = new Vector3();
 const tempQuaternion = new Quaternion();
 
 export function getLastWorldPosition(src: Object3D, target: Vector3) {
-  src.updateMatrices();
+  src.updateMatrixWorld();
   target.setFromMatrixPosition(src.matrixWorld);
   return target;
 }
 
 export function getLastWorldQuaternion(src: Object3D, target: Quaternion) {
-  src.updateMatrices();
+  src.updateMatrixWorld();
   src.matrixWorld.decompose(tempVector3, target, tempVector3);
   return target;
 }
 
 export function getLastWorldScale(src: Object3D, target: Vector3) {
-  src.updateMatrices();
+  src.updateMatrixWorld();
   src.matrixWorld.decompose(tempVector3, tempQuaternion, target);
   return target;
 }
@@ -176,7 +176,7 @@ export function setMatrixWorld(object3D: Object3D, m: Matrix4) {
   tempMatrix4.copy(object3D.matrixWorld);
   object3D.matrixWorld.copy(m);
   if (object3D.parent) {
-    object3D.parent.updateMatrices();
+    object3D.parent.updateMatrixWorld();
     object3D.matrix.copy(object3D.parent.matrixWorld).invert().multiply(m);
   } else {
     object3D.matrix.copy(m);
@@ -411,8 +411,8 @@ export const squareDistanceBetween = (function () {
   const posA = new Vector3();
   const posB = new Vector3();
   return function (objA: Object3D, objB: Object3D) {
-    objA.updateMatrices();
-    objB.updateMatrices();
+    objA.updateMatrixWorld();
+    objB.updateMatrixWorld();
     posA.setFromMatrixColumn(objA.matrixWorld, 3);
     posB.setFromMatrixColumn(objB.matrixWorld, 3);
     return posA.distanceToSquared(posB);
@@ -529,9 +529,9 @@ export const childMatch = (function () {
     child: Object3D,
     target: Matrix4,
   ) {
-    parent.updateMatrices();
+    parent.updateMatrixWorld();
     inverseParentWorld.copy(parent.matrixWorld).invert();
-    child.updateMatrices();
+    child.updateMatrixWorld();
     childRelativeToParent.multiplyMatrices(
       inverseParentWorld,
       child.matrixWorld,

@@ -1,10 +1,9 @@
-import type { Permission } from '#/types/hubs';
-
 import MicrophoneMutedIcon from '../icons/MicrophoneMuted.svg?react';
 import Microphone from '../icons/Microphone.svg?react';
 import Chat from '../icons/Chat.svg?react';
 import ChatOff from '../icons/ChatOff.svg?react';
 import { m } from '#/paraglide/messages';
+import type { Permission } from '#/utils/permission';
 
 export const permissionsIcons = {
   voice_chat_enabled: <Microphone />,

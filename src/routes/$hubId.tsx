@@ -11,17 +11,21 @@ import { Mesh } from 'three';
 import { useLoader } from '@react-three/fiber';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import {
-  CameraControls,
   KeyboardControls,
   OrbitControls,
   PerspectiveCamera,
   useKeyboardControls,
 } from '@react-three/drei';
 import HubScene from '#/core/HubScene';
-import { CameraControlsImpl } from '@react-three/drei';
 import type { Hub } from '#/core/hub';
-import { UserInputSystem, useInput } from '#/input/UserInput.client';
+import {
+  UserInputManager,
+  UserInputSystem,
+  useInput,
+} from '#/input/UserInput.client.tsx';
 import { TestScene } from '#/core/TestScene';
+import CameraControls from '#/components/CameraControls';
+import Scene from '#/core/Scene';
 
 interface HubSearchParams {
   hub_invite_id?: string;
@@ -40,15 +44,6 @@ export const Route = createFileRoute('/$hubId')({
     };
   },
 });
-
-const { ACTION } = CameraControlsImpl;
-enum Controls {
-  forward = 'forward',
-  back = 'back',
-  left = 'left',
-  right = 'right',
-  jump = 'jump',
-}
 
 function Box(props: ThreeElements['mesh']) {
   const ref = useRef<Mesh>(null!);
@@ -132,16 +127,13 @@ function RouteComponent() {
               decay={0}
               intensity={Math.PI}
             />
-            <TestScene />
-            <PerspectiveCamera makeDefault position={[0, 1, 0]} />
-            <CameraControls
-              mouseButtons={{
-                left: ACTION.ROTATE,
-                middle: ACTION.DOLLY,
-                right: ACTION.TRUCK,
-                wheel: ACTION.DOLLY,
-              }}
-            />
+            <Scene>
+              <CameraControls />
+              <UserInputManager />
+            </Scene>
+            {/* <TestScene>
+              <UserInputManager />
+            </TestScene> */}
             <Box position={[-1.2, 2, 0]} />
             <Box position={[1.2, 2, 0]} />
             {/* <OrbitControls /> */}
