@@ -1,3 +1,5 @@
 {
-    "tailwindCSS.experimental.configFile": "src/styles/styles.css"
+    "tailwindCSS.experimental.configFile": "src/styles/styles.css",
+    "editor.snippetSuggestions": "bottom",
+    "emmet.showSuggestionsAsSnippets": true
 }

@@ -1,31 +1,30 @@
-import { Gltf, useGLTF } from '@react-three/drei';
-import { createContext, type ReactNode } from 'react';
-import type { Material, Mesh, Object3D } from 'three';
+import { Gltf, PerspectiveCamera, useGLTF } from '@react-three/drei';
+import { useThree } from '@react-three/fiber';
+import { createContext, useRef, type ReactNode, type RefObject } from 'react';
+import {
+  PerspectiveCamera as ThreePerspectiveCamera,
+  type Mesh,
+  type Object3D,
+} from 'three';
 import { Pathfinding } from 'three-pathfinding';
 
 export interface SceneProps {
   children?: ReactNode;
+  playerCam: RefObject<ThreePerspectiveCamera | null>;
 }
 
 export interface SceneContext {
   src?: string;
   scene?: Record<string, Object3D>;
   nav?: { mesh: Mesh; pathfinder: Pathfinding };
+  camera?: ThreePerspectiveCamera | null;
 }
 export const SceneContext = createContext<SceneContext>({});
 
-function getHubsComponents(node: any) {
-  const hubsComponents =
-    node.userData.gltfExtensions?.MOZ_hubs_components ||
-    node.userData.gltfExtensions?.HUBS_components;
-  return hubsComponents;
-}
+// TODO: Fix scene camera logic & injection into player model
 
-export default function Scene({ children }: SceneProps) {
+export default function Scene({ playerCam, children }: SceneProps) {
   const { nodes, materials, animations } = useGLTF('/testWorld.bin');
-  const hubsComponents =
-    nodes.navMesh.userData.gltfExtensions.MOZ_hubs_components ||
-    nodes.navMesh.userData.gltfExtensions?.HUBS_components;
 
   const pathfinder = new Pathfinding();
   const navMesh = nodes.navMesh as Mesh;
@@ -34,6 +33,7 @@ export default function Scene({ children }: SceneProps) {
   geometry.applyMatrix4(navMesh.matrixWorld);
 
   pathfinder.setZoneData('character', Pathfinding.createZone(geometry));
+  console.log(playerCam.current);
   return (
     <>
       <SceneContext
@@ -41,6 +41,7 @@ export default function Scene({ children }: SceneProps) {
           src: '/testWorld.bin',
           scene: nodes,
           nav: { mesh: navMesh, pathfinder: pathfinder },
+          camera: playerCam.current,
         }}
       >
         {children}

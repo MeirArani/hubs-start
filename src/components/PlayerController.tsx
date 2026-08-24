@@ -2,7 +2,7 @@ import {
   useAcceleration,
   useDrag as useDrag,
 } from '#/input/UserInput.client.tsx';
-import { useContext, useRef } from 'react';
+import { useContext, useRef, type RefObject } from 'react';
 import {
   Matrix4,
   Object3D,
@@ -10,10 +10,15 @@ import {
   Quaternion,
   Vector3,
 } from 'three';
-import { PerspectiveCamera } from '@react-three/drei';
 import { childMatch, rotateInPlaceAroundWorldUp } from '#/utils/three-utils';
 import { SceneContext } from '#/core/Scene';
-import type { Group, Node, Pathfinding } from 'three-pathfinding';
+import type { Node } from 'three-pathfinding';
+import Cursor from './Cursor';
+import { PerspectiveCamera, Sphere } from '@react-three/drei';
+import { useFrame } from '@react-three/fiber';
+
+// TODO: Add flying/Waypoints/VR
+// TODO: Improve logic flow and react-ness
 
 // CHECK can these exist outside the function? (Multithreading etc)
 const opq = new Quaternion();
@@ -95,10 +100,14 @@ const startPOVPosition = new Vector3();
 const desiredPOVPosition = new Vector3();
 const navMeshSnappedPOVPosition = new Vector3();
 
-export interface CameraControlsProps {
+export interface PlayerControllerProps {
   fly?: boolean;
+  camRef: RefObject<PerspectiveCameraThree | null>;
 }
-export default function CameraControls({ fly = false }: CameraControlsProps) {
+export default function PlayerController({
+  fly = false,
+  camRef,
+}: PlayerControllerProps) {
   const avatarPOV = useRef<PerspectiveCameraThree>(null);
   const avatarRig = useRef<Object3D>(null);
   const wasFlying = useRef(false);
@@ -190,7 +199,7 @@ export default function CameraControls({ fly = false }: CameraControlsProps) {
 
   // Calculate Movement
   useAcceleration((accel, delta) => {
-    if (!avatarPOV.current) return;
+    if (!camRef.current) return;
     if (!avatarRig.current) return;
 
     if (accel.x === 0 && accel.y === 0) return;
@@ -210,12 +219,8 @@ export default function CameraControls({ fly = false }: CameraControlsProps) {
     relativeMotion.multiplyScalar(1 - lerpC);
 
     // Rotate player and place in correct position
-    avatarPOV.current?.updateMatrix();
-    rotateInPlaceAroundWorldUp(
-      avatarPOV.current.matrixWorld,
-      0,
-      snapRotatedPOV,
-    );
+    camRef.current?.updateMatrix();
+    rotateInPlaceAroundWorldUp(camRef.current.matrixWorld, 0, snapRotatedPOV);
     newPOV.copy(snapRotatedPOV);
 
     //@ts-ignore
@@ -224,7 +229,7 @@ export default function CameraControls({ fly = false }: CameraControlsProps) {
     const triedToMove = relativeMotion.lengthSq() > 0.000001;
     if (triedToMove) {
       calculateDisplacementToDesiredPOV(
-        avatarPOV.current.matrixWorld,
+        camRef.current.matrixWorld,
         fly || !navMeshExists,
         relativeMotion.multiplyScalar(MoveSpeed),
         displacementToDesiredPOV,
@@ -246,7 +251,7 @@ export default function CameraControls({ fly = false }: CameraControlsProps) {
     let squareDistNavMeshCorrection = 0;
     if (shouldResnapToMesh) {
       findPOVPositionAboveNavMesh(
-        startPOVPosition.setFromMatrixPosition(avatarPOV.current.matrixWorld),
+        startPOVPosition.setFromMatrixPosition(camRef.current.matrixWorld),
         desiredPOVPosition.setFromMatrixPosition(newPOV),
         navMeshSnappedPOVPosition,
         shouldRecomputeNavGroupAndNavNode,
@@ -265,14 +270,14 @@ export default function CameraControls({ fly = false }: CameraControlsProps) {
     }
 
     // Match Parent to child movement
-    childMatch(avatarRig.current, avatarPOV.current, newPOV);
+    childMatch(avatarRig.current, camRef.current, newPOV);
 
     relativeMotion.copy(nextRelativeMotion);
   });
 
   // CameraLook
   useDrag((mouse, delta) => {
-    if (!avatarPOV.current) return;
+    if (!camRef.current) return;
     if (
       Math.abs(mouse.delta.x) < MouseEpsilon &&
       Math.abs(mouse.delta.y) < MouseEpsilon
@@ -280,7 +285,7 @@ export default function CameraControls({ fly = false }: CameraControlsProps) {
       return;
 
     rotatePitchAndYaw(
-      avatarPOV.current,
+      camRef.current,
       mouse.delta.y * CameraSpeed * delta,
       mouse.delta.x * CameraSpeed * delta,
     );
@@ -288,10 +293,11 @@ export default function CameraControls({ fly = false }: CameraControlsProps) {
 
   return (
     <>
-      <mesh ref={avatarRig} position={[5, 2, 8]}>
-        <PerspectiveCamera makeDefault ref={avatarPOV} />
+      <mesh ref={avatarRig}>
+        <PerspectiveCamera makeDefault ref={camRef} />
         <boxGeometry />
       </mesh>
+      <Cursor camera={camRef} />
     </>
   );
 }

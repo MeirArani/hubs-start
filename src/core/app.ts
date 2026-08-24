@@ -1,4 +1,4 @@
-import { createWorld, type World } from 'bitecs';
+import { createWorld, type InternalWorld, type World } from 'bitecs';
 import type { Material, Object3D } from 'three';
 import {
   AEntity,
@@ -11,7 +11,7 @@ import type HubChannel from './hub-channel';
 import type SceneEntryManager from './scene-entry-manager';
 import type PinningHelper from '#/utils/pinning-helper';
 import type { HubsChannelParams } from './hub-channel';
-import type Hub from './hub';
+// import type Hub from './hub';
 
 export interface HubsWorld {
   eid2obj: Map<number, Object3D>;
@@ -23,7 +23,6 @@ export interface HubsWorld {
     object3d: typeof Object3DTag;
     networked: typeof Networked;
     owned: typeof Owned;
-    AEntity: typeof AEntity;
   };
   time: {
     delta: number;

@@ -1,98 +1,8 @@
 import { useFrame } from '@react-three/fiber';
-import { useEffect, useRef, useState } from 'react';
-import { createStore } from '@tanstack/store';
-import { useSelector } from '@tanstack/react-store';
-import { Vector2 } from 'three';
-
-interface InputStore {
-  keys: {
-    a: boolean;
-    b: boolean;
-    c: boolean;
-    d: boolean;
-    e: boolean;
-    f: boolean;
-    g: boolean;
-    h: boolean;
-    i: boolean;
-    j: boolean;
-    k: boolean;
-    l: boolean;
-    m: boolean;
-    n: boolean;
-    o: boolean;
-    p: boolean;
-    q: boolean;
-    r: boolean;
-    s: boolean;
-    t: boolean;
-    u: boolean;
-    v: boolean;
-    w: boolean;
-    x: boolean;
-    y: boolean;
-    z: boolean;
-    '1': boolean;
-    '2': boolean;
-    '3': boolean;
-    '4': boolean;
-    '5': boolean;
-    '6': boolean;
-    '7': boolean;
-    '8': boolean;
-    '9': boolean;
-  };
-  mouse: {
-    left: boolean;
-    right: boolean;
-    middle: boolean;
-  };
-}
-
-export const inputStore = createStore<InputStore>({
-  keys: {
-    a: false,
-    b: false,
-    c: false,
-    d: false,
-    e: false,
-    f: false,
-    g: false,
-    h: false,
-    i: false,
-    j: false,
-    k: false,
-    l: false,
-    m: false,
-    n: false,
-    o: false,
-    p: false,
-    q: false,
-    r: false,
-    s: false,
-    t: false,
-    u: false,
-    v: false,
-    w: false,
-    x: false,
-    y: false,
-    z: false,
-    '1': false,
-    '2': false,
-    '3': false,
-    '4': false,
-    '5': false,
-    '6': false,
-    '7': false,
-    '8': false,
-    '9': false,
-  },
-  mouse: {
-    left: false,
-    right: false,
-    middle: false,
-  },
-});
+import { useContext } from 'react';
+import { PerspectiveCamera, Vector2, Vector3 } from 'three';
+import { Pose } from '#/core/Pose';
+import { SceneContext } from '#/core/Scene';
 
 const keyboardEvents: KeyboardEvent[] = [];
 (['keyup', 'keydown'] as const).map((keyEvent) => {
@@ -114,6 +24,23 @@ const mouseEvents: MouseEvent[] = [];
   );
 });
 
+const origin = new Vector3();
+const direction = new Vector3();
+function CalculateCursorPose(
+  cursorPose: Pose,
+  camera: PerspectiveCamera,
+  coords: Vector2,
+) {
+  origin.setFromMatrixPosition(camera.matrixWorld);
+  direction
+    .set(coords.x, coords.y, 0.5)
+    .unproject(camera)
+    .sub(origin)
+    .normalize();
+  cursorPose.fromOriginAndDirection(origin, direction);
+  return cursorPose;
+}
+
 export function UserInputSystem() {}
 
 interface Input {
@@ -123,14 +50,9 @@ interface Input {
       right: boolean;
       middle: boolean;
     };
-    delta: {
-      x: number;
-      y: number;
-    };
-    position: {
-      x: number;
-      y: number;
-    };
+    delta: Vector2;
+    position: Vector2;
+    cursorPose: Pose;
   };
   keys: {
     a: boolean;
@@ -147,14 +69,9 @@ const InputObj: Input = {
       right: false,
       middle: false,
     },
-    delta: {
-      x: 0,
-      y: 0,
-    },
-    position: {
-      x: 0,
-      y: 0,
-    },
+    delta: new Vector2(),
+    position: new Vector2(),
+    cursorPose: new Pose(),
   },
   keys: {
     a: false,
@@ -168,8 +85,14 @@ function isValidKey(key: string): key is keyof Input['keys'] {
   return InputObj.keys[key as keyof Input['keys']] !== undefined;
 }
 
+let hasRun = false;
 export function UserInputManager() {
-  useFrame(() => {
+  const scene = useContext(SceneContext);
+  useFrame((state) => {
+    if (!hasRun) {
+      console.log(`Input running ${performance.now()}`);
+      hasRun = true;
+    }
     if (keyboardEvents.length == 0 && mouseEvents.length == 0) return;
 
     // Key Events
@@ -223,31 +146,34 @@ export function UserInputManager() {
           break;
         }
         case 'mousemove': {
-          InputObj.mouse.delta = {
-            x: mouseEvent.movementX,
-            y: mouseEvent.movementY,
-          };
-          InputObj.mouse.position = {
-            x: mouseEvent.clientX,
-            y: -mouseEvent.clientY,
-          };
+          InputObj.mouse.delta = new Vector2(
+            mouseEvent.movementX,
+            mouseEvent.movementY,
+          );
+          InputObj.mouse.position = new Vector2(
+            (mouseEvent.clientX / state.size.width) * 2 - 1,
+            -(mouseEvent.clientY / state.size.height) * 2 + 1,
+          );
+
           break;
         }
         default: {
         }
       }
     }
-
-    inputStore.setState((prev) => ({
-      ...prev,
-      keys: { ...prev.keys, ...keyUpdates },
-      mouse: { ...prev.mouse, ...mouseUpdates },
-    }));
     keyboardEvents.length = 0;
     mouseEvents.length = 0;
+
+    if (!scene.camera) return;
+
+    InputObj.mouse.cursorPose = CalculateCursorPose(
+      new Pose(),
+      scene.camera,
+      InputObj.mouse.position,
+    );
   });
 
-  return <></>;
+  return null;
 }
 
 export function useAcceleration(
@@ -288,7 +214,3 @@ export function UseMouse(callback: (mouse: Input['mouse']) => void) {
     callback(InputObj['mouse']);
   });
 }
-
-let keyUpdates: Partial<Record<keyof InputStore['keys'], boolean>> = {};
-let mouseUpdates: Partial<Record<keyof InputStore['mouse'], boolean>> = {};
-export function useInput() {}

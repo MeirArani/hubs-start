@@ -5,7 +5,6 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 export default function HubScene() {
   useFrame((state, delta) => {
     UserInputSystem();
-    console.log(useInput());
   });
   const gltf = useLoader(GLTFLoader, '/testWorld.bin');
   console.log('Loaded gltf');

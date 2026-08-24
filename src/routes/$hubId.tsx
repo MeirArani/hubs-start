@@ -4,27 +4,13 @@ import UIRoot from '#/react-components/UIRoot';
 import HubChannel from '#/core/hub-channel';
 import { DummyPermissions } from '#/utils/dummy';
 import { App } from '#/core/app';
-import React, { useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { Canvas, useFrame, type ThreeElements } from '@react-three/fiber';
 import { HubContext } from '#/react-components/context/HubsContext';
-import { Mesh } from 'three';
-import { useLoader } from '@react-three/fiber';
-import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
-import {
-  KeyboardControls,
-  OrbitControls,
-  PerspectiveCamera,
-  useKeyboardControls,
-} from '@react-three/drei';
-import HubScene from '#/core/HubScene';
+import { Mesh, PerspectiveCamera } from 'three';
 import type { Hub } from '#/core/hub';
-import {
-  UserInputManager,
-  UserInputSystem,
-  useInput,
-} from '#/input/UserInput.client.tsx';
-import { TestScene } from '#/core/TestScene';
-import CameraControls from '#/components/CameraControls';
+import { UserInputManager } from '#/input/UserInput.client.tsx';
+import PlayerController from '#/components/PlayerController';
 import Scene from '#/core/Scene';
 
 interface HubSearchParams {
@@ -49,15 +35,15 @@ function Box(props: ThreeElements['mesh']) {
   const ref = useRef<Mesh>(null!);
   const [hovered, hover] = useState(false);
   const [clicked, click] = useState(false);
-  useFrame((state, delta) => (ref.current.rotation.x += delta));
+  useFrame((_state, delta) => (ref.current.rotation.x += delta));
   return (
     <mesh
       {...props}
       ref={ref}
       scale={clicked ? 1.5 : 1}
-      onClick={(event) => click(!clicked)}
-      onPointerOver={(event) => hover(true)}
-      onPointerOut={(event) => hover(false)}
+      onClick={() => click(!clicked)}
+      onPointerOver={() => hover(true)}
+      onPointerOut={() => hover(false)}
     >
       <boxGeometry args={[1, 1, 1]} />
       <meshStandardMaterial color={hovered ? 'hotpink' : 'orange'} />
@@ -67,6 +53,8 @@ function Box(props: ThreeElements['mesh']) {
 
 function RouteComponent() {
   window.APP = new App();
+  // Create playerCam reference here, so we can pass deeply
+  const playerCam = useRef<PerspectiveCamera>(null);
   const hub: Hub = {
     allow_promotion: false,
     description: 'Dummy Hub for testing purposes only!!',
@@ -104,7 +92,6 @@ function RouteComponent() {
     user_data: null,
     embed_token: 'testToken',
   };
-
   console.log('re render');
   return (
     <ThemeProvider>
@@ -115,28 +102,11 @@ function RouteComponent() {
         <ClientOnly>
           <Canvas className="absolute top-0 left-0 w-full h-full">
             <ambientLight intensity={Math.PI / 2} />
-            <spotLight
-              position={[10, 10, 10]}
-              angle={0.15}
-              penumbra={1}
-              decay={0}
-              intensity={Math.PI}
-            />
-            <pointLight
-              position={[-10, -10, -10]}
-              decay={0}
-              intensity={Math.PI}
-            />
-            <Scene>
-              <CameraControls />
+            <Scene playerCam={playerCam}>
+              <PlayerController camRef={playerCam} />
               <UserInputManager />
+              <Box position={[0, 2, 0]} />
             </Scene>
-            {/* <TestScene>
-              <UserInputManager />
-            </TestScene> */}
-            <Box position={[-1.2, 2, 0]} />
-            <Box position={[1.2, 2, 0]} />
-            {/* <OrbitControls /> */}
           </Canvas>
         </ClientOnly>
 

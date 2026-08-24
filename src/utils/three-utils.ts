@@ -33,6 +33,7 @@ import { MediaVideo } from '#/components/bitecs/component-defs';
 import { Text } from 'troika-three-text';
 import { forEachMaterial } from './material-utils';
 import { isMobile } from './is-mobile.client';
+import { createIsomorphicFn } from '@tanstack/react-start';
 
 const tempVector3 = new Vector3();
 const tempQuaternion = new Quaternion();
@@ -102,10 +103,14 @@ export function getLastWorldScale(src: Object3D, target: Vector3) {
 
 type Morphable = Line | Mesh | Points;
 
-const HAS_IMAGE_BITMAP =
-  window.createImageBitmap !== undefined &&
-  /Firefox/.test(navigator.userAgent) === false &&
-  !isMobile();
+const HAS_IMAGE_BITMAP = createIsomorphicFn()
+  .client(
+    () =>
+      window.createImageBitmap !== undefined &&
+      /Firefox/.test(navigator.userAgent) === false &&
+      !isMobile(),
+  )
+  .server(() => false)();
 export const TEXTURES_FLIP_Y = !HAS_IMAGE_BITMAP;
 
 export function isMorphable(obj: Object3D): obj is Morphable {

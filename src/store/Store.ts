@@ -6,6 +6,7 @@ import { createStore } from '@tanstack/store';
 
 interface HubsStore {
   preferences: {
+    cursorSize: number;
     theme: string;
     maxResolution: { width: number; height: number };
     micMuteOnEntry: boolean;
@@ -42,6 +43,7 @@ interface HubsStoreActions {
 
 export const store = createStore<HubsStore>({
   preferences: {
+    cursorSize: 1,
     theme: 'default',
     maxResolution: {
       width: getDefaultMaxResolutionWidth(),
