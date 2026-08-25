@@ -1,13 +1,19 @@
 import {
   useAcceleration,
   useDrag as useDrag,
+  useMouse,
 } from '#/input/UserInput.client.tsx';
-import { useContext, useRef, type RefObject } from 'react';
+import { useContext, useRef, useState, type RefObject } from 'react';
 import {
+  Color,
+  Group,
   Matrix4,
+  Mesh,
+  MeshBasicMaterial,
   Object3D,
   PerspectiveCamera as PerspectiveCameraThree,
   Quaternion,
+  TorusGeometry,
   Vector3,
 } from 'three';
 import { childMatch, rotateInPlaceAroundWorldUp } from '#/utils/three-utils';
@@ -16,6 +22,8 @@ import type { Node } from 'three-pathfinding';
 import Cursor from './Cursor';
 import { PerspectiveCamera, Sphere } from '@react-three/drei';
 import { useFrame } from '@react-three/fiber';
+import Teleporter, { HitEntity } from './Teleporter';
+import { RayCurve } from '#/utils/RayCurve';
 
 // TODO: Add flying/Waypoints/VR
 // TODO: Improve logic flow and react-ness
@@ -32,8 +40,7 @@ const v = new Vector3();
 const UP = new Vector3(0, 1, 0);
 
 function rotatePitchAndYaw(obj: Object3D, pitch: number, yaw: number) {
-  obj.parent?.updateMatrix();
-  obj.updateMatrix();
+  obj.parent?.updateMatrixWorld(true);
   obj.parent?.getWorldQuaternion(opq);
   obj.getWorldQuaternion(owq);
   oq.copy(obj.quaternion);
@@ -60,7 +67,7 @@ function rotatePitchAndYaw(obj: Object3D, pitch: number, yaw: number) {
   } else {
     obj.quaternion.copy(q);
     obj.matrixNeedsUpdate = true;
-    obj.updateMatrix();
+    obj.updateMatrixWorld(true);
   }
 }
 
@@ -99,20 +106,29 @@ const newPOV = new Matrix4();
 const startPOVPosition = new Vector3();
 const desiredPOVPosition = new Vector3();
 const navMeshSnappedPOVPosition = new Vector3();
+const rig = new Vector3();
+const head = new Vector3();
+const deltaFromHeadToTargetForHead = new Vector3();
+const targetForHead = new Vector3();
+const targetForRig = new Vector3();
 
 export interface PlayerControllerProps {
   fly?: boolean;
-  camRef: RefObject<PerspectiveCameraThree | null>;
 }
 export default function PlayerController({
   fly = false,
-  camRef,
 }: PlayerControllerProps) {
   const avatarPOV = useRef<PerspectiveCameraThree>(null);
+  const [teleporting, setTeleporting] = useState(false);
   const avatarRig = useRef<Object3D>(null);
   const wasFlying = useRef(false);
   const navGroup = useRef<number>(-1);
   const navNode = useRef<Node>(null);
+
+  const rayCurve = useRef<RayCurve>(null);
+  const hitRef = useRef<Group>(null);
+  const outerHitTorus = useRef<Mesh<TorusGeometry, MeshBasicMaterial>>(null);
+  const outerHit = useRef<Mesh<TorusGeometry, MeshBasicMaterial>>(null);
 
   const scene = useContext(SceneContext);
 
@@ -199,7 +215,7 @@ export default function PlayerController({
 
   // Calculate Movement
   useAcceleration((accel, delta) => {
-    if (!camRef.current) return;
+    if (!avatarPOV.current) return;
     if (!avatarRig.current) return;
 
     if (accel.x === 0 && accel.y === 0) return;
@@ -219,8 +235,12 @@ export default function PlayerController({
     relativeMotion.multiplyScalar(1 - lerpC);
 
     // Rotate player and place in correct position
-    camRef.current?.updateMatrix();
-    rotateInPlaceAroundWorldUp(camRef.current.matrixWorld, 0, snapRotatedPOV);
+    avatarPOV.current?.updateMatrixWorld(true);
+    rotateInPlaceAroundWorldUp(
+      avatarPOV.current.matrixWorld,
+      0,
+      snapRotatedPOV,
+    );
     newPOV.copy(snapRotatedPOV);
 
     //@ts-ignore
@@ -229,7 +249,7 @@ export default function PlayerController({
     const triedToMove = relativeMotion.lengthSq() > 0.000001;
     if (triedToMove) {
       calculateDisplacementToDesiredPOV(
-        camRef.current.matrixWorld,
+        avatarPOV.current.matrixWorld,
         fly || !navMeshExists,
         relativeMotion.multiplyScalar(MoveSpeed),
         displacementToDesiredPOV,
@@ -251,7 +271,7 @@ export default function PlayerController({
     let squareDistNavMeshCorrection = 0;
     if (shouldResnapToMesh) {
       findPOVPositionAboveNavMesh(
-        startPOVPosition.setFromMatrixPosition(camRef.current.matrixWorld),
+        startPOVPosition.setFromMatrixPosition(avatarPOV.current.matrixWorld),
         desiredPOVPosition.setFromMatrixPosition(newPOV),
         navMeshSnappedPOVPosition,
         shouldRecomputeNavGroupAndNavNode,
@@ -270,14 +290,14 @@ export default function PlayerController({
     }
 
     // Match Parent to child movement
-    childMatch(avatarRig.current, camRef.current, newPOV);
+    childMatch(avatarRig.current, avatarPOV.current, newPOV);
 
     relativeMotion.copy(nextRelativeMotion);
   });
 
   // CameraLook
   useDrag((mouse, delta) => {
-    if (!camRef.current) return;
+    if (!avatarPOV.current) return;
     if (
       Math.abs(mouse.delta.x) < MouseEpsilon &&
       Math.abs(mouse.delta.y) < MouseEpsilon
@@ -285,19 +305,59 @@ export default function PlayerController({
       return;
 
     rotatePitchAndYaw(
-      camRef.current,
+      avatarPOV.current,
       mouse.delta.y * CameraSpeed * delta,
-      mouse.delta.x * CameraSpeed * delta,
+      -mouse.delta.x * CameraSpeed * delta,
     );
+  });
+
+  useMouse((mouse, state, delta) => {
+    if (!mouse.buttons.right && teleporting) {
+      setTeleporting(false);
+      return;
+    }
+    if (mouse.buttons.right && !teleporting) {
+      setTeleporting(true);
+    }
   });
 
   return (
     <>
-      <mesh ref={avatarRig}>
-        <PerspectiveCamera makeDefault ref={camRef} />
+      <mesh ref={avatarRig} position={[0, 0, 0]}>
+        <PerspectiveCamera makeDefault position={[0, 1.6, 0]} ref={avatarPOV}>
+          {teleporting && (
+            <Teleporter
+              teleportTo={(targetPosition: Vector3) => {
+                if (!avatarRig.current) return;
+                if (!avatarPOV.current) return;
+
+                avatarRig.current?.getWorldPosition(rig);
+                avatarPOV.current?.getWorldPosition(head);
+                targetForHead.copy(targetPosition);
+
+                targetForHead.y += avatarPOV.current.position.y;
+                deltaFromHeadToTargetForHead.copy(targetForHead).sub(head);
+                targetForRig.copy(rig).add(deltaFromHeadToTargetForHead);
+
+                const navMeshExists = scene.nav
+                  ? NavZone in scene.nav?.pathfinder.zones
+                  : false;
+
+                findPositionOnNavMesh(
+                  targetForRig,
+                  targetForRig,
+                  avatarRig.current?.position,
+                  navMeshExists,
+                );
+                avatarRig.current.matrixNeedsUpdate = true;
+              }}
+            />
+          )}
+        </PerspectiveCamera>
+
         <boxGeometry />
       </mesh>
-      <Cursor camera={camRef} />
+      <Cursor />
     </>
   );
 }

@@ -1,6 +1,6 @@
-import { useFrame } from '@react-three/fiber';
+import { useFrame, useThree, type RootState } from '@react-three/fiber';
 import { useContext } from 'react';
-import { PerspectiveCamera, Vector2, Vector3 } from 'three';
+import { Camera, PerspectiveCamera, Vector2, Vector3 } from 'three';
 import { Pose } from '#/core/Pose';
 import { SceneContext } from '#/core/Scene';
 
@@ -24,11 +24,19 @@ const mouseEvents: MouseEvent[] = [];
   );
 });
 
+document.addEventListener('contextmenu', (e: MouseEvent) => {
+  if (e.button === 2) {
+    e.preventDefault();
+    e.stopPropagation();
+    return false;
+  }
+});
+
 const origin = new Vector3();
 const direction = new Vector3();
 function CalculateCursorPose(
   cursorPose: Pose,
-  camera: PerspectiveCamera,
+  camera: Camera,
   coords: Vector2,
 ) {
   origin.setFromMatrixPosition(camera.matrixWorld);
@@ -85,16 +93,9 @@ function isValidKey(key: string): key is keyof Input['keys'] {
   return InputObj.keys[key as keyof Input['keys']] !== undefined;
 }
 
-let hasRun = false;
+const cursorPose = new Pose();
 export function UserInputManager() {
-  const scene = useContext(SceneContext);
   useFrame((state) => {
-    if (!hasRun) {
-      console.log(`Input running ${performance.now()}`);
-      hasRun = true;
-    }
-    if (keyboardEvents.length == 0 && mouseEvents.length == 0) return;
-
     // Key Events
     for (const keyEvent of keyboardEvents.filter((ke) =>
       ['keyup', 'keydown'].includes(ke.type),
@@ -164,11 +165,9 @@ export function UserInputManager() {
     keyboardEvents.length = 0;
     mouseEvents.length = 0;
 
-    if (!scene.camera) return;
-
     InputObj.mouse.cursorPose = CalculateCursorPose(
-      new Pose(),
-      scene.camera,
+      cursorPose,
+      state.camera,
       InputObj.mouse.position,
     );
   });
@@ -202,15 +201,17 @@ export function useDrag(
   callback: (mouse: Input['mouse'], delta: number) => void,
 ) {
   useFrame((_state, delta) => {
-    if (!InputObj.mouse.buttons.left) return;
+    if (!InputObj.mouse.buttons.left && !InputObj.mouse.buttons.right) return;
     if (InputObj.mouse.delta.x === 0 && InputObj.mouse.delta.y === 0) return;
 
     callback(InputObj['mouse'], delta);
   });
 }
 
-export function UseMouse(callback: (mouse: Input['mouse']) => void) {
-  useFrame(() => {
-    callback(InputObj['mouse']);
+export function useMouse(
+  callback: (mouse: Input['mouse'], state: RootState, delta: number) => void,
+) {
+  useFrame((state, delta) => {
+    callback(InputObj['mouse'], state, delta);
   });
 }

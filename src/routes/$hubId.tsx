@@ -4,7 +4,7 @@ import UIRoot from '#/react-components/UIRoot';
 import HubChannel from '#/core/hub-channel';
 import { DummyPermissions } from '#/utils/dummy';
 import { App } from '#/core/app';
-import { useRef, useState } from 'react';
+import { Suspense, useRef, useState } from 'react';
 import { Canvas, useFrame, type ThreeElements } from '@react-three/fiber';
 import { HubContext } from '#/react-components/context/HubsContext';
 import { Mesh, PerspectiveCamera } from 'three';
@@ -12,6 +12,7 @@ import type { Hub } from '#/core/hub';
 import { UserInputManager } from '#/input/UserInput.client.tsx';
 import PlayerController from '#/components/PlayerController';
 import Scene from '#/core/Scene';
+import { Html, useProgress } from '@react-three/drei';
 
 interface HubSearchParams {
   hub_invite_id?: string;
@@ -54,7 +55,6 @@ function Box(props: ThreeElements['mesh']) {
 function RouteComponent() {
   window.APP = new App();
   // Create playerCam reference here, so we can pass deeply
-  const playerCam = useRef<PerspectiveCamera>(null);
   const hub: Hub = {
     allow_promotion: false,
     description: 'Dummy Hub for testing purposes only!!',
@@ -102,11 +102,12 @@ function RouteComponent() {
         <ClientOnly>
           <Canvas className="absolute top-0 left-0 w-full h-full">
             <ambientLight intensity={Math.PI / 2} />
-            <Scene playerCam={playerCam}>
-              <PlayerController camRef={playerCam} />
-              <UserInputManager />
-              <Box position={[0, 2, 0]} />
-            </Scene>
+            <Suspense fallback={<Loader />}>
+              <Scene>
+                <UserInputManager />
+                <Box position={[0, 1, 0]} />
+              </Scene>
+            </Suspense>
           </Canvas>
         </ClientOnly>
 
@@ -117,4 +118,9 @@ function RouteComponent() {
       </HubContext>
     </ThemeProvider>
   );
+}
+
+function Loader() {
+  const { progress } = useProgress();
+  return <Html center>{progress} % loaded</Html>;
 }

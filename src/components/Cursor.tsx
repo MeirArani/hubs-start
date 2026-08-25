@@ -1,8 +1,9 @@
-import { UseMouse } from '#/input/UserInput.client';
+import { useMouse } from '#/input/UserInput.client';
 import { store } from '#/store/store';
 import { Layers } from '#/utils/camera-layers';
 import { getLastWorldPosition } from '#/utils/three-utils';
 import { Box } from '@react-three/drei';
+import { extend, ReactThreeFiber, useThree } from '@react-three/fiber';
 import { useSelector } from '@tanstack/react-store';
 import { useEffect, useRef, useState, type RefObject } from 'react';
 import {
@@ -20,8 +21,9 @@ import {
   type Intersection,
 } from 'three';
 
+extend({ threeLine: Line });
+
 export interface CursorProps {
-  camera: RefObject<PerspectiveCamera | null>;
   far?: number;
   near?: number;
   minDistance?: number;
@@ -74,7 +76,6 @@ const fragmentShader = `
           }`;
 
 export default function Cursor({
-  camera,
   far = 100,
   near = 0.01,
   minDistance = 0.18,
@@ -83,102 +84,76 @@ export default function Cursor({
   const cursor = useRef<Mesh<BufferGeometry, ShaderMaterial>>(null);
 
   const [enabled, setEnabled] = useState(true);
-  const distance = useRef(0);
+  let distance = far;
   const intersection = useRef<Intersection>(null);
-  const raycaster = useRef<Raycaster>(new Raycaster());
-  const color = useRef<Color>(new Color());
+  const raycaster = new Raycaster();
+  const color = new Color();
   const line = useRef<Line<BufferGeometry, LineBasicMaterial>>(null);
 
-  const cursorScale = useSelector(
-    store,
-    (store) => store.preferences.cursorSize,
-  );
+  useEffect(() => {
+    color.set(cursor.current?.material.uniforms.color.value);
+  });
+
+  // const cursorScale = useSelector(
+  //   store,
+  //   (store) => store.preferences.cursorSize,
+  // );
 
   // cursor.current.layers.set(Layers.CAMERA_LAYER_UI);
   // cursor.current.layers.enable(Layers.CAMERA_LAYER_FX_MASK);
-  color.current = cursor.current?.material.uniforms.color.value;
 
   intersection.current = null;
-  raycaster.current = new Raycaster();
-  raycaster.current.firstHitOnly = true;
-  distance.current = far;
-
-  const lineGeometry = new BufferGeometry();
-  lineGeometry.setAttribute(
-    'position',
-    new BufferAttribute(new Float32Array(2 * 3), 3),
-  );
-  line.current = new Line(
-    lineGeometry,
-    new LineBasicMaterial({
-      color: 'white',
-      opacity: 0.2,
-      transparent: true,
-      visible: true,
-    }),
-  );
-  // this.el.setObject3D("line", this.line);
-
+  raycaster.firstHitOnly = true;
   const rawIntersections: Intersection[] = [];
   const cameraPos = new Vector3();
   const v = new Vector3();
-  let ran = false;
-  UseMouse((mouse) => {
-    if (!cursor.current) return;
-    if (!camera.current) return;
-    if (!ran) {
-      ran = true;
-      console.log(`Cusor @ ${performance.now()}`);
-    }
+  const hideLine = false;
 
-    const hideLine = false;
+  const playerScale = 1;
+  // const playerScale = v
+  // .setFromMatrixColumn(state.camera.matrixWorld, 1)
+  // .length();
+  raycaster.far = far * playerScale;
+  raycaster.near = near * playerScale;
+  let isGrabbing = false;
+  let isHoveringSomething = false;
+  useMouse((mouse, state, delta) => {
+    if (!cursor.current) return;
 
     cursor.current.visible = enabled && !!mouse.cursorPose;
-    if (line.current) line.current.visible = !!(enabled && !hideLine);
-
-    intersection.current = null;
 
     if (!enabled || !mouse.cursorPose) return;
 
-    camera.current.updateMatrix();
-    const playerScale = v
-      .setFromMatrixColumn(camera.current.matrixWorld, 1)
-      .length();
-    raycaster.current.far = far * playerScale;
-    raycaster.current.near = near * playerScale;
-
-    const isGrabbing = false;
-    let isHoveringSomething = false;
     if (!isGrabbing) {
       rawIntersections.length = 0;
-      raycaster.current.ray.origin = mouse.cursorPose.position;
-      raycaster.current.ray.direction = mouse.cursorPose.direction;
+      raycaster.ray.origin = mouse.cursorPose.position;
+      raycaster.ray.direction = mouse.cursorPose.direction;
 
       // TODO: Add cursorTargetingSystem targets
-      // raycaster.current.intersectObjects([], true, rawIntersections);
+      // raycaster.intersectObjects([], true, rawIntersections);
       // intersection.current = rawIntersections[0];
 
       // const remoteHoverTarget = intersection.current && findRemoteHoverTarget();
 
-      distance.current = defaultDistance * playerScale;
+      distance = defaultDistance * playerScale;
     }
 
     // const cursorModDelta = 0;
     cursor.current.position
       .copy(mouse.cursorPose.position)
-      .addScaledVector(mouse.cursorPose.direction, distance.current);
-    getLastWorldPosition(camera.current, cameraPos);
+      .addScaledVector(mouse.cursorPose.direction, distance);
+    getLastWorldPosition(state.camera, cameraPos);
     cameraPos.y = cursor.current.position.y;
     cursor.current.lookAt(cameraPos);
     cursor.current.matrixNeedsUpdate = true;
 
-    color.current = isGrabbing || isHoveringSomething ? Highlight : NoHighlight;
+    color.set(isGrabbing || isHoveringSomething ? Highlight : NoHighlight);
 
     if (!line.current?.material.visible) return;
 
     const posePosition = mouse.cursorPose.position;
     const cursorPosition = cursor.current.position;
-    const positionArray = line.current?.geometry.attributes['position'].array;
+    const positionArray = line.current.geometry.attributes['position'].array;
     if (!positionArray) return;
 
     positionArray[0] = posePosition.x;
@@ -188,16 +163,14 @@ export default function Cursor({
     positionArray[4] = cursorPosition.y;
     positionArray[5] = cursorPosition.z;
 
-    if (line.current?.geometry.attributes['position'])
-      line.current.geometry.attributes['position'].needsUpdate = true;
-    line.current?.geometry.computeBoundingSphere();
+    line.current.geometry.attributes['position'].needsUpdate = true;
+    line.current.geometry.computeBoundingSphere();
   });
 
-  cursor.current?.position.set(
-    camera.current?.position.x || 0,
-    camera.current?.position.y || 0,
-    camera.current?.position.z || 0,
-  );
+  useThree((state) => {
+    if (!cursor.current) return;
+    state.camera.getWorldPosition(cursor.current.position);
+  });
   return (
     <>
       <mesh ref={cursor} scale={0.6} renderOrder={3}>
@@ -205,10 +178,24 @@ export default function Cursor({
         <shaderMaterial
           depthTest={false}
           transparent
-          uniforms={{ color: { value: new Color(color.current) } }}
+          uniforms={{ color: { value: color } }}
           vertexShader={vertexShader}
           fragmentShader={fragmentShader}
         />
+        {/* <threeLine ref={line}>
+          <bufferGeometry>
+            <bufferAttribute
+              attach="attributes-position"
+              args={[new Float32Array(2 * 3), 3]}
+            />
+          </bufferGeometry>
+          <lineBasicMaterial
+            color={'white'}
+            opacity={0.2}
+            transparent
+            visible
+          />
+        </threeLine> */}
       </mesh>
     </>
   );
