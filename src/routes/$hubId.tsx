@@ -13,23 +13,22 @@ import { UserInputManager } from '#/input/UserInput.client.tsx';
 import PlayerController from '#/components/PlayerController';
 import Scene from '#/core/Scene';
 import { Html, useProgress } from '@react-three/drei';
+import { z } from 'zod';
+import { zodValidator } from '@tanstack/zod-adapter';
 
-interface HubSearchParams {
-  hub_invite_id?: string;
-  embed_token?: string;
-  debugLocalScene?: boolean;
-}
+const HubSearchParams = z.object({
+  hub_invite_id: z.string().optional().catch(''),
+  embed_token: z.string().optional().catch(''),
+  debugLocalScene: z.boolean().optional().catch(false),
+  waypoint: z.string().optional().catch(''),
+});
+
+type HubSearchParams = z.infer<typeof HubSearchParams>;
 
 export const Route = createFileRoute('/$hubId')({
   component: RouteComponent,
   ssr: false,
-  validateSearch: (params: Record<string, unknown>): HubSearchParams => {
-    return {
-      hub_invite_id: (params.hub_invite_id as string) || '',
-      embed_token: (params.embed_token as string) || '',
-      debugLocalScene: params.debugLocalScene ? true : false,
-    };
-  },
+  validateSearch: zodValidator(HubSearchParams),
 });
 
 function Box(props: ThreeElements['mesh']) {

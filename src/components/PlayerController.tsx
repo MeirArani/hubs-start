@@ -3,7 +3,14 @@ import {
   useDrag as useDrag,
   useMouse,
 } from '#/input/UserInput.client.tsx';
-import { useContext, useRef, useState, type RefObject } from 'react';
+import {
+  act,
+  startTransition,
+  useContext,
+  useRef,
+  useState,
+  type RefObject,
+} from 'react';
 import {
   Color,
   Group,
@@ -16,7 +23,11 @@ import {
   TorusGeometry,
   Vector3,
 } from 'three';
-import { childMatch, rotateInPlaceAroundWorldUp } from '#/utils/three-utils';
+import {
+  calculateCameraTransformForWaypoint,
+  childMatch,
+  rotateInPlaceAroundWorldUp,
+} from '#/utils/three-utils';
 import { SceneContext } from '#/core/Scene';
 import type { Node } from 'three-pathfinding';
 import Cursor from './Cursor';
@@ -24,6 +35,16 @@ import { PerspectiveCamera, Sphere } from '@react-three/drei';
 import { useFrame } from '@react-three/fiber';
 import Teleporter, { HitEntity } from './Teleporter';
 import { RayCurve } from '#/utils/RayCurve';
+import { isMobile } from '#/utils/is-mobile.client';
+
+interface Waypoint {
+  transform: Matrix4;
+  isInstant: boolean;
+  willDisableMotion: boolean;
+  willDisableTeleporting: boolean;
+  snapToNavMesh: boolean;
+  willMaintainInitialOrientation: boolean;
+}
 
 // TODO: Add flying/Waypoints/VR
 // TODO: Improve logic flow and react-ness
@@ -112,18 +133,36 @@ const deltaFromHeadToTargetForHead = new Vector3();
 const targetForHead = new Vector3();
 const targetForRig = new Vector3();
 
-export interface PlayerControllerProps {
-  fly?: boolean;
-}
-export default function PlayerController({
-  fly = false,
-}: PlayerControllerProps) {
+// travelByWaypoint
+const inMat4Copy = new Matrix4();
+const inPosition = new Vector3();
+const outPosition = new Vector3();
+const translation = new Matrix4();
+const initialOrientation = new Matrix4();
+const finalScale = new Vector3();
+const finalPosition = new Vector3();
+const finalPOV = new Matrix4();
+const startTransform = new Matrix4();
+const startTranslation = new Matrix4();
+
+export interface PlayerControllerProps {}
+export default function PlayerController({}: PlayerControllerProps) {
   const avatarPOV = useRef<PerspectiveCameraThree>(null);
   const [teleporting, setTeleporting] = useState(false);
   const avatarRig = useRef<Object3D>(null);
   const wasFlying = useRef(false);
   const navGroup = useRef<number>(-1);
   const navNode = useRef<Node>(null);
+  const fly = useRef(false);
+  const shouldLandWhenPossible = useRef(false);
+  const shouldOccupyWaypointsOnceMoving = useRef(false);
+  const didTeleportSinceLastWaypointTravel = useRef(false);
+  const waypoints = useRef<Waypoint[]>([]);
+  const activeWaypoint = useRef<Waypoint>(null);
+  const isMotionDisabled = useRef(false);
+  const isTeleportingDisabled = useRef(false);
+  const waypointTravelTime = useRef(0);
+  const waypointTravelStartTime = useRef(0);
 
   const rayCurve = useRef<RayCurve>(null);
   const hitRef = useRef<Group>(null);
@@ -131,6 +170,10 @@ export default function PlayerController({
   const outerHit = useRef<Mesh<TorusGeometry, MeshBasicMaterial>>(null);
 
   const scene = useContext(SceneContext);
+
+  function getCurrentPlayerHeight() {
+    return 1.6;
+  }
 
   function getClosestNode(pos: Vector3) {
     if (!scene.nav) return null;
@@ -145,6 +188,60 @@ export default function PlayerController({
         true,
       ) || scene.nav.pathfinder.getClosestNode(pos, NavZone, navGroup.current)
     );
+  }
+
+  function travelByWaypoint(
+    inMat4: Matrix4,
+    snapToNavMesh: boolean,
+    willMaintainInitialOrientation: boolean,
+  ) {
+    if (!avatarPOV.current) return;
+    if (!avatarRig.current) return;
+    avatarPOV.current.updateMatrixWorld(true);
+    if (!fly.current && !snapToNavMesh) {
+      fly.current = true;
+      shouldLandWhenPossible.current = true;
+    }
+
+    shouldOccupyWaypointsOnceMoving.current = true;
+    didTeleportSinceLastWaypointTravel.current = false;
+    inMat4Copy.copy(inMat4);
+    rotateInPlaceAroundWorldUp(inMat4Copy, Math.PI, finalPOV);
+    const navMeshExists = scene.nav && NavZone in scene.nav?.pathfinder.zones;
+    if (!navMeshExists && snapToNavMesh) {
+      console.warn(
+        'Tried to travel to a waypoint that wants to snap to the nav mesh, but there is no nav mesh',
+      );
+    }
+    if (navMeshExists && snapToNavMesh) {
+      inPosition.setFromMatrixPosition(inMat4Copy);
+      findPositionOnNavMesh(inPosition, inPosition, outPosition, true);
+      finalPOV.setPosition(outPosition);
+      translation.makeTranslation(0, 1.6, -0.15);
+    } else {
+      // If we are not snapping to the nav mesh, align the user's
+      // perspective exactly to the robot eyes as they appear in the
+      // waypoint indicator. (1.6 meters up and 0.15 meters forward)
+      // This does _not_ require taking the player's height into account
+      // on this line because we are only interested in where the
+      // camera will end up.
+      translation.makeTranslation(0, 1.6, -0.15);
+    }
+    finalPOV.multiply(translation);
+    if (willMaintainInitialOrientation) {
+      initialOrientation.extractRotation(avatarPOV.current.matrixWorld);
+      finalScale.setFromMatrixScale(finalPOV);
+      finalPOV
+        .copy(initialOrientation)
+        .scale(finalScale)
+        .setPosition(finalPosition);
+    }
+    calculateCameraTransformForWaypoint(
+      avatarPOV.current.matrixWorld,
+      finalPOV,
+      finalPOV,
+    );
+    childMatch(avatarRig.current, avatarPOV.current, finalPOV);
   }
 
   function findPositionOnNavMesh(
@@ -220,7 +317,7 @@ export default function PlayerController({
 
     if (accel.x === 0 && accel.y === 0) return;
 
-    const didStopFlying = wasFlying.current && !fly;
+    const didStopFlying = wasFlying.current && !fly.current;
 
     accel.multiplyScalar(delta);
 
@@ -250,7 +347,7 @@ export default function PlayerController({
     if (triedToMove) {
       calculateDisplacementToDesiredPOV(
         avatarPOV.current.matrixWorld,
-        fly || !navMeshExists,
+        fly.current || !navMeshExists,
         relativeMotion.multiplyScalar(MoveSpeed),
         displacementToDesiredPOV,
       );
@@ -281,10 +378,10 @@ export default function PlayerController({
         navMeshSnappedPOVPosition,
       );
 
-      if (fly && squareDistNavMeshCorrection < 0.5) {
-        fly = false;
+      if (fly.current && squareDistNavMeshCorrection < 0.5) {
+        fly.current = false;
         newPOV.setPosition(navMeshSnappedPOVPosition);
-      } else if (!fly) {
+      } else if (!fly.current) {
         newPOV.setPosition(navMeshSnappedPOVPosition);
       }
     }
@@ -297,7 +394,7 @@ export default function PlayerController({
 
   // CameraLook
   useDrag((mouse, delta) => {
-    if (!avatarPOV.current) return;
+    if (!avatarRig.current) return;
     if (
       Math.abs(mouse.delta.x) < MouseEpsilon &&
       Math.abs(mouse.delta.y) < MouseEpsilon
@@ -305,8 +402,8 @@ export default function PlayerController({
       return;
 
     rotatePitchAndYaw(
-      avatarPOV.current,
-      mouse.delta.y * CameraSpeed * delta,
+      avatarRig.current,
+      -mouse.delta.y * CameraSpeed * delta,
       -mouse.delta.x * CameraSpeed * delta,
     );
   });
@@ -321,9 +418,49 @@ export default function PlayerController({
     }
   });
 
+  useFrame((state, delta) => {
+    if (!avatarPOV.current) return;
+    if (!avatarRig.current) return;
+    if (waypoints.current.length < 1 && !activeWaypoint.current) return;
+    const waypoint = waypoints.current.splice(0, 1)[0];
+    activeWaypoint.current = waypoint;
+    isMotionDisabled.current =
+      waypoint.willDisableMotion &&
+      (!isMobile() || waypoint.willDisableTeleporting);
+    avatarPOV.current.updateMatrixWorld(true);
+
+    // TODO: Logic for non-instant waypoints
+    rotateInPlaceAroundWorldUp(
+      avatarPOV.current.matrixWorld,
+      Math.PI,
+      startTransform,
+    );
+    startTransform.multiply(
+      startTranslation.makeTranslation(0, -1 * getCurrentPlayerHeight(), -0.15),
+    );
+    waypointTravelStartTime.current = state.clock.elapsedTime;
+    if (waypointTravelTime.current > 100) {
+      // Play cool SFX
+    }
+
+    // TODO: Again deal with logic for non-instant waypoints
+    travelByWaypoint(
+      waypoint.transform,
+      waypoint.snapToNavMesh,
+      waypoint.willMaintainInitialOrientation,
+    );
+    // TODO: Consider Matrix4 pooling
+    activeWaypoint.current = null;
+    if (waypointTravelTime.current > 0) {
+      // Play exit SFX
+    }
+
+    // Handle flying logic
+  });
+
   return (
     <>
-      <mesh ref={avatarRig} position={[0, 0, 0]}>
+      <mesh ref={avatarRig} position={[0, 1, 0]}>
         <PerspectiveCamera makeDefault position={[0, 1.6, 0]} ref={avatarPOV}>
           {teleporting && (
             <Teleporter
@@ -356,6 +493,7 @@ export default function PlayerController({
         </PerspectiveCamera>
 
         <boxGeometry />
+        <meshBasicMaterial color={'blue'} />
       </mesh>
       <Cursor />
     </>

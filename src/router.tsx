@@ -1,8 +1,9 @@
 import {
   createBrowserHistory,
+  createRouteMask,
   createRouter as createTanStackRouter,
-} from '@tanstack/react-router'
-import { routeTree } from './routeTree.gen'
+} from '@tanstack/react-router';
+import { routeTree } from './routeTree.gen';
 
 // export const browserHistory = createBrowserHistory({})
 
@@ -12,13 +13,14 @@ export function getRouter() {
     scrollRestoration: true,
     defaultPreload: 'intent',
     defaultPreloadStaleTime: 0,
-  })
+    routeMasks: [],
+  });
 
-  return router
+  return router;
 }
 
 declare module '@tanstack/react-router' {
   interface Register {
-    router: ReturnType<typeof getRouter>
+    router: ReturnType<typeof getRouter>;
   }
 }
