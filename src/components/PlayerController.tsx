@@ -460,7 +460,7 @@ export default function PlayerController({}: PlayerControllerProps) {
 
   return (
     <>
-      <mesh ref={avatarRig} position={[0, 1, 0]}>
+      <mesh ref={avatarRig} position={[0, 0, 5]}>
         <PerspectiveCamera makeDefault position={[0, 1.6, 0]} ref={avatarPOV}>
           {teleporting && (
             <Teleporter

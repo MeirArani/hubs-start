@@ -67,6 +67,7 @@ interface Input {
     d: boolean;
     s: boolean;
     w: boolean;
+    space: boolean;
   };
 }
 
@@ -86,6 +87,7 @@ const InputObj: Input = {
     d: false,
     s: false,
     w: false,
+    space: false,
   },
 };
 
@@ -100,7 +102,10 @@ export function UserInputManager() {
     for (const keyEvent of keyboardEvents.filter((ke) =>
       ['keyup', 'keydown'].includes(ke.type),
     )) {
-      const key = keyEvent.code.toLowerCase().slice(3) as keyof Input['keys'];
+      const key =
+        keyEvent.code.toLowerCase() === 'space'
+          ? 'space'
+          : (keyEvent.code.toLowerCase().slice(3) as keyof Input['keys']);
       if (!isValidKey(key)) continue;
       InputObj.keys[key] = keyEvent.type === 'keydown';
     }

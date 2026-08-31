@@ -104,7 +104,7 @@ function RouteComponent() {
             <Suspense fallback={<Loader />}>
               <Scene>
                 <UserInputManager />
-                <Box position={[0, 1, 0]} />
+                <Box position={[5, 1, 0]} />
               </Scene>
             </Suspense>
           </Canvas>

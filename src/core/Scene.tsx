@@ -18,6 +18,9 @@ import { useMouse } from '#/input/UserInput.client';
 import { useLoader } from '@react-three/fiber';
 import { GLTFLoader } from 'three-stdlib';
 import hubsTest from '#/assets/models/hubsTest.glb';
+import { SpawnPoint } from '#/assets/prefabs/spawn-point';
+import Waypoint from '#/components/Waypoint';
+import Sprite from '#/components/Sprite';
 
 export interface SceneProps {
   children?: ReactNode;
@@ -54,6 +57,7 @@ export default function Scene({ children }: SceneProps) {
       >
         <PlayerController />
         {children}
+        <Waypoint name="wayPoint" />
         <primitive object={scene} />
       </SceneContext>
     </>
