@@ -7,14 +7,16 @@ import { App } from '#/core/app';
 import { Suspense, useRef, useState } from 'react';
 import { Canvas, useFrame, type ThreeElements } from '@react-three/fiber';
 import { HubContext } from '#/react-components/context/HubsContext';
-import { Mesh, PerspectiveCamera } from 'three';
+import { Mesh } from 'three';
 import type { Hub } from '#/core/hub';
 import { UserInputManager } from '#/input/UserInput.client.tsx';
-import PlayerController from '#/components/PlayerController';
 import Scene from '#/core/Scene';
 import { Html, useProgress } from '@react-three/drei';
 import { z } from 'zod';
 import { zodValidator } from '@tanstack/zod-adapter';
+import { Client } from '@colyseus/sdk';
+import { createRoomContext } from '@colyseus/react';
+import type { HubRoomState } from '../../server/src/rooms/schema/HubRoomState';
 
 const HubSearchParams = z.object({
   hub_invite_id: z.string().optional().catch(''),
@@ -51,9 +53,20 @@ function Box(props: ThreeElements['mesh']) {
   );
 }
 
+const client = new Client('ws://localhost:2567');
+
+export const {
+  RoomProvider,
+  useRoom,
+  useRoomState,
+  useRoomMessage,
+  useSessionEntity,
+} = createRoomContext<HubRoomState>({});
+
 function RouteComponent() {
   window.APP = new App();
   // Create playerCam reference here, so we can pass deeply
+
   const hub: Hub = {
     allow_promotion: false,
     description: 'Dummy Hub for testing purposes only!!',
@@ -91,31 +104,37 @@ function RouteComponent() {
     user_data: null,
     embed_token: 'testToken',
   };
-  console.log('re render');
-  return (
-    <ThemeProvider>
-      <HubContext
-        value={{ hub, hubChannel: new HubChannel('test'), scene: null! }}
-      >
-        <div className="support-root"></div>
-        <ClientOnly>
-          <Canvas className="absolute top-0 left-0 w-full h-full">
-            <ambientLight intensity={Math.PI / 2} />
-            <Suspense fallback={<Loader />}>
-              <Scene>
-                <UserInputManager />
-                <Box position={[5, 1, 0]} />
-              </Scene>
-            </Suspense>
-          </Canvas>
-        </ClientOnly>
 
-        <div id="ui-root">
-          <UIRoot />
-        </div>
-        <div id="canvas-container"></div>
-      </HubContext>
-    </ThemeProvider>
+  console.log('re render');
+
+  return (
+    <RoomProvider
+      connect={() => client.joinOrCreate<HubRoomState>('hubs_room')}
+    >
+      <ThemeProvider>
+        <HubContext
+          value={{ hub, hubChannel: new HubChannel('test'), scene: null! }}
+        >
+          <div className="support-root"></div>
+          <ClientOnly>
+            <Canvas className="absolute top-0 left-0 w-full h-full">
+              <ambientLight intensity={Math.PI / 2} />
+              <Suspense fallback={<Loader />}>
+                <Scene src="/hubsTest.glb">
+                  <UserInputManager />
+                  <Box position={[5, 1, 0]} />
+                </Scene>
+              </Suspense>
+            </Canvas>
+          </ClientOnly>
+
+          <div id="ui-root">
+            <UIRoot />
+          </div>
+          <div id="canvas-container"></div>
+        </HubContext>
+      </ThemeProvider>
+    </RoomProvider>
   );
 }
 

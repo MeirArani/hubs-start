@@ -1,0 +1,44 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+
+        {
+            "type": "chrome",
+            "preLaunchTask": "npm: dev",
+            "name": "Launch Chrome against localhost",
+            "port": 3000,
+            "url": "http://localhost:3000",
+            "webRoot": "${workspaceFolder}",
+            "request": "launch",
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Vite",
+            "runtimeExecutable": "npm",
+            "runtimeArgs": ["exec", "vite", "--configLoader", "bundle"],
+            "console": "integratedTerminal",
+            "sourceMaps": true,
+            "resolveSourceMapLocations": [
+                "${workspaceFolder}/**",
+                "!**/node_modules/**",
+                "**/node_modules/.vite-temp/**"
+            ]
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Launch Program",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "outFiles": [
+                "${workspaceFolder}/**/*.js"
+            ]
+        },
+        
+    ]
+}

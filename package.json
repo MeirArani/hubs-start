@@ -14,7 +14,7 @@
     }
   },
   "scripts": {
-    "dev": "vite dev --port 3000",
+    "dev": "vite dev --port 3000 --configLoader native",
     "generate-routes": "tsr generate",
     "build": "vite build",
     "preview": "vite preview",
@@ -24,6 +24,8 @@
     "check": "prettier --check ."
   },
   "dependencies": {
+    "@colyseus/react": "^0.18.2",
+    "@colyseus/sdk": "^0.18.2",
     "@fontsource/dejavu-mono": "^5.2.5",
     "@fontsource/poppins": "^5.2.7",
     "@fortawesome/fontawesome-svg-core": "^7.2.0",
@@ -51,6 +53,7 @@
     "aframe-typescript-class-components": "^0.3.3",
     "animejs": "^4.5.0",
     "bitecs": "^0.4.0",
+    "colyseus": "^0.18.5",
     "dashjs": "^5.2.0",
     "downshift": "^9.4.0",
     "eventemitter3": "^5.0.4",
@@ -105,6 +108,7 @@
     "@types/screenfull": "^4.1.0",
     "@vitejs/plugin-react": "^6.0.1",
     "eslint": "^9.20.0",
+    "import": "^0.0.6",
     "jsdom": "^28.1.0",
     "prettier": "^3.8.1",
     "sass-migrator": "^2.6.0",
@@ -112,7 +116,7 @@
     "typescript": "^7.0.1-rc",
     "vite": "^8.0.0",
     "vite-plugin-svgr": "^5.2.0",
-    "vitest": "^4.1.5"
+    "vitest": "^5.0.0"
   },
   "pnpm": {
     "onlyBuiltDependencies": [

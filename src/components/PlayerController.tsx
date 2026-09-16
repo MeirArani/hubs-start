@@ -7,6 +7,7 @@ import {
   act,
   startTransition,
   useContext,
+  useEffect,
   useRef,
   useState,
   type RefObject,
@@ -36,15 +37,9 @@ import { useFrame } from '@react-three/fiber';
 import Teleporter, { HitEntity } from './Teleporter';
 import { RayCurve } from '#/utils/RayCurve';
 import { isMobile } from '#/utils/is-mobile.client';
-
-interface Waypoint {
-  transform: Matrix4;
-  isInstant: boolean;
-  willDisableMotion: boolean;
-  willDisableTeleporting: boolean;
-  snapToNavMesh: boolean;
-  willMaintainInitialOrientation: boolean;
-}
+import type { WaypointData } from './Waypoint';
+import { useRoom, useRoomMessage } from '#/routes/$hubId';
+import type { Player } from '../../server/src/rooms/schema/HubRoomState';
 
 // TODO: Add flying/Waypoints/VR
 // TODO: Improve logic flow and react-ness
@@ -145,8 +140,14 @@ const finalPOV = new Matrix4();
 const startTransform = new Matrix4();
 const startTranslation = new Matrix4();
 
-export interface PlayerControllerProps {}
-export default function PlayerController({}: PlayerControllerProps) {
+export interface PlayerControllerProps {
+  waypoint?: WaypointData;
+  onWaypointFinished?: () => void;
+}
+export default function PlayerController({
+  waypoint,
+  onWaypointFinished = () => {},
+}: PlayerControllerProps) {
   const avatarPOV = useRef<PerspectiveCameraThree>(null);
   const [teleporting, setTeleporting] = useState(false);
   const avatarRig = useRef<Object3D>(null);
@@ -157,12 +158,14 @@ export default function PlayerController({}: PlayerControllerProps) {
   const shouldLandWhenPossible = useRef(false);
   const shouldOccupyWaypointsOnceMoving = useRef(false);
   const didTeleportSinceLastWaypointTravel = useRef(false);
-  const waypoints = useRef<Waypoint[]>([]);
-  const activeWaypoint = useRef<Waypoint>(null);
+  const waypoints = useRef<WaypointData[]>([]);
+  const activeWaypoint = useRef<WaypointData>(null);
   const isMotionDisabled = useRef(false);
   const isTeleportingDisabled = useRef(false);
   const waypointTravelTime = useRef(0);
   const waypointTravelStartTime = useRef(0);
+
+  const { room } = useRoom();
 
   const rayCurve = useRef<RayCurve>(null);
   const hitRef = useRef<Group>(null);
@@ -170,6 +173,17 @@ export default function PlayerController({}: PlayerControllerProps) {
   const outerHit = useRef<Mesh<TorusGeometry, MeshBasicMaterial>>(null);
 
   const scene = useContext(SceneContext);
+
+  useEffect(() => {
+    if (waypoint) {
+      travelByWaypoint(
+        waypoint.transform,
+        waypoint.snapToNavMesh || false,
+        waypoint.willMaintainInitialOrientation || false,
+      );
+    }
+    return () => onWaypointFinished();
+  }, [waypoint]);
 
   function getCurrentPlayerHeight() {
     return 1.6;
@@ -390,6 +404,13 @@ export default function PlayerController({}: PlayerControllerProps) {
     childMatch(avatarRig.current, avatarPOV.current, newPOV);
 
     relativeMotion.copy(nextRelativeMotion);
+
+    if (!room) return;
+    room.send('playerMove', {
+      x: avatarRig.current.position.x,
+      y: avatarRig.current.position.y,
+      z: avatarRig.current.position.z,
+    });
   });
 
   // CameraLook
@@ -460,7 +481,7 @@ export default function PlayerController({}: PlayerControllerProps) {
 
   return (
     <>
-      <mesh ref={avatarRig} position={[0, 0, 5]}>
+      <mesh ref={avatarRig}>
         <PerspectiveCamera makeDefault position={[0, 1.6, 0]} ref={avatarPOV}>
           {teleporting && (
             <Teleporter

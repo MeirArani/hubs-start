@@ -4,6 +4,7 @@ import { useGLTF } from '@react-three/drei';
 import type { GLTF } from 'three-stdlib';
 import type { Events, ThreeElements, ThreeEvent } from '@react-three/fiber';
 import {
+  Matrix4,
   Mesh,
   Sprite as ThreeSprite,
   type Group,
@@ -12,7 +13,17 @@ import {
 import { useKeys } from '#/input/UserInput.client';
 import { off } from 'process';
 import Sprite from './Sprite';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+
+export interface WaypointData {
+  name: string;
+  transform: Matrix4;
+  isInstant?: boolean;
+  willDisableMotion?: boolean;
+  willDisableTeleporting?: boolean;
+  snapToNavMesh?: boolean;
+  willMaintainInitialOrientation?: boolean;
+}
 
 type GLTFResult = GLTF & {
   nodes: {
@@ -34,6 +45,7 @@ export interface WaypointProps extends GroupProps {
   disableTeleporting?: boolean;
   snapToFloorPlan?: boolean;
   initialOrientation?: boolean;
+  onSelect: (e: null | ThreeEvent<'onClick'>, waypoint: WaypointData) => void;
 }
 
 // Hold space: Symbol appears
@@ -49,6 +61,7 @@ export default function Waypoint({
   disableTeleporting = false,
   snapToFloorPlan = false,
   initialOrientation = false,
+  onSelect,
   ...rest
 }: WaypointProps) {
   const routeAPI = getRouteApi('/$hubId');
@@ -56,11 +69,22 @@ export default function Waypoint({
   const waypointModel = useRef<Mesh>(null);
   const [modelHovered, setModelHovered] = useState(false);
   const [buttonActive, setButtonActive] = useState(false);
-  const { waypoint } = routeAPI.useSearch();
+  const { waypoint: URLWaypoint } = routeAPI.useSearch();
+  const navigate = routeAPI.useNavigate();
 
-  if (waypoint === name) {
-    // do waypoint stuff.
-  }
+  useEffect(() => {
+    if (URLWaypoint !== name) return;
+    if (!waypointModel.current) return;
+    onSelect(null, {
+      name: URLWaypoint,
+      transform: waypointModel.current.matrixWorld,
+    });
+    navigate({
+      from: '/$hubId',
+      to: '/$hubId',
+      params: (prev) => ({ ...prev, waypoint: 'AHHHH' }),
+    });
+  });
 
   let lastInput = false;
   useKeys(({ space }) => {
@@ -89,28 +113,35 @@ export default function Waypoint({
           geometry={nodes.icon_spawnPoint.geometry}
           material={materials.icon_spawnpointMat}
         />
+        <Sprite
+          ref={spriteButton}
+          position={[0, 1.6, 0]}
+          visible={buttonActive}
+          onClick={(e: ThreeEvent<'onClick'>) => {
+            if (buttonActive && waypointModel.current)
+              onSelect(e, {
+                name: name,
+                transform: waypointModel.current.matrixWorld,
+              });
+          }}
+          onPointerMove={(e: ThreeEvent<'onPointerMove'>) => {
+            // TODO: Check all intersections
+            // Or find a more sane way to handle hovering on icon that's just been made visible
+            if (
+              !modelHovered &&
+              buttonActive &&
+              e.intersections[0].object === spriteButton.current
+            )
+              setModelHovered(true);
+          }}
+          onPointerEnter={(e: ThreeEvent<'onPointerEnter'>) => {
+            if (buttonActive) setModelHovered(true);
+          }}
+          onPointerLeave={() => {
+            setModelHovered(false);
+          }}
+        />
       </group>
-      <Sprite
-        ref={spriteButton}
-        position={[0, 1.6, 0]}
-        visible={buttonActive}
-        onPointerMove={(e: ThreeEvent<'onPointerMove'>) => {
-          // TODO: Check all intersections
-          // Or find a more sane way to handle hovering on icon that's just been made visible
-          if (
-            !modelHovered &&
-            e.intersections[0].object === spriteButton.current
-          )
-            setModelHovered(true);
-        }}
-        onPointerEnter={(e: ThreeEvent<'onPointerEnter'>) => {
-          console.log(e.intersections[0].object === spriteButton.current);
-          setModelHovered(true);
-        }}
-        onPointerLeave={() => {
-          setModelHovered(false);
-        }}
-      />
     </>
   );
 }
